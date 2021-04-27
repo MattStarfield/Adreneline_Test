@@ -1,0 +1,68 @@
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/include
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/FlashStorage/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit VS1053 Library
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit Motor Shield V2 Library
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit Motor Shield V2 Library/utility
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit NeoPixel
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Arduino-MemoryFree
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SimpleCLI/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/CuteBuzzerSounds/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/EasyBuzzer/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/EasyLed/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/EasyButton/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/ArduinoUniqueID/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Average
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit SleepyDog Library
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit SleepyDog Library/utility
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/ArduinoTrace
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Arduino_DebugUtils/src
+-IC:/Users/mattg/.platformio/packages/framework-cmsis/CMSIS/Core/Include
+-IC:/Users/mattg/.platformio/packages/framework-cmsis-atmel/CMSIS/Device/ATMEL
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/cores/arduino
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/cores/arduino/TinyUSB
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/cores/arduino/TinyUSB/Adafruit_TinyUSB_ArduinoCore
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/cores/arduino/TinyUSB/Adafruit_TinyUSB_ArduinoCore/tinyusb/src
+-IC:/Users/mattg/.platformio/packages/framework-cmsis/CMSIS/DSP/Include
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/variants/feather_m0_express
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SD
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA/utility
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/SPI
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Wire
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/AccelStepper/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit BusIO
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit GFX Library
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit ILI9341
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit SSD1306
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit STMPE610
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit TouchScreen
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Servo/src
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/CI_Tests
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/HID
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/I2S/src
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/SAMD_AnalogCorrection/src
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/SDU/src
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Servo/src
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/USBHost/src
+-IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/9.3.1
+-IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/9.3.1/arm-none-eabi
+-IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/9.3.1/include
+-IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/9.3.1/include-fixed
+-IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include
+-IC:/Users/mattg/.platformio/packages/tool-unity
+-DPLATFORMIO=50101
+-DARDUINO_SAMD_ZERO
+-DARDUINO_SAMD_FEATHER_M0
+-DARDUINO_SAMD_FEATHER_M0_EXPRESS
+-DARM_MATH_CM0PLUS
+-D__SAMD21G18A__
+-DARDUINO=10805
+-DF_CPU=48000000L
+-DUSBCON
+-DUSB_VID=0x239A
+-DUSB_PID=0x801B
+-DUSB_PRODUCT="Feather M0 Express"
+-DUSB_MANUFACTURER="Adafruit"
+-DARDUINO_ARCH_SAMD
+-DUSB_CONFIG_POWER=100
