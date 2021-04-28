@@ -22,7 +22,7 @@
 //==============================================================================
 
   #define FIRMWARE_VERSION                  "v0.0.1"
-  #define FIRMWARE_NAME                     "Firmware_Name"
+  #define FIRMWARE_NAME                     "Either-Or"
 
 //==============================================================================
 // == App Settings == //
@@ -81,32 +81,49 @@
 // == Pin Configuration == //
 //==============================================================================
 
-  // Arduino Nano   https://upload.wikimedia.org/wikipedia/commons/e/e4/Arduino-nano-pinout.png
+  // Adafruit Feather M0 Express Pinout: https://learn.adafruit.com/assets/96531
+  // NOTE: https://learn.adafruit.com/adafruit-feather-m0-express-designed-for-circuit-python-circuitpython/adapting-sketches-to-m0
   //----------------------------------------------------------------------------
 
-    #define PIN_SYS_LED                       13  // SPI-SCK; OB-LED //
-    #define PIN_PIXELS                        12  // SPI-MISO   // Neopixel Data Output, used by pixel_config.h
-    //#define PIN_                            11  // SPI-MOSI; PWM //
-    #define PIN_BUZZER                        10  // PWM        //
-    #define PIN_FADE_LED                       9  // PWM        //
-    //#define PIN_                             8  //            // not on Feather
-    //#define PIN_                             7  //            // not on Feather
-    #define PIN_FAN_PWM                        6  // PWM        //
-    //#define PIN_                             5  // PWM        //
-    //#define PIN_                             4  //            // not on Feather
-    #define PIN_FAN_TACH                       3  // INT1; PWM  //
-    #define PIN_UI_BUTTON                      2  // INT0       //
-    //#define PIN_                             0  // RX0 (avoid use) //
-    //#define PIN_                             1  // TX1        //
+    #define PIN_I2C_SCL                       27  // MotorDriver I2C-SCL  //
+    #define PIN_I2C_SDA                       26  // MotorDriver I2C-SDA  //
 
-    #define PIN_PRESSURE_SENSOR               A0  // Analog In  //
-    #define PIN_POT                           A1  // Analog In  //
-    //#define PIN_                            A2  // Analog In  //
-    //#define PIN_                            A3  // Analog In  //
-    //#define PIN_                            A4  // I2C-SDA; A-In //
-    //#define PIN_                            A5  // I2C-SCL; A-In //
-    //#define PIN_                            A6  // NANO Analog In ONLY //
-    //#define PIN_                            A7  // NANO Analog In ONLY //
+    #define PIN_SPI_SCK                       24  // MusicMaker SPI-SCK  //
+    #define PIN_SPI_MOSI                      23  // MusicMaker SPI-MOSI  //
+    #define PIN_SPI_MISO                      22  // MusicMaker SPI-MISO  //
+
+    //#define PIN_                              A5  // D19; Analog In  //
+    #define PIN_UI_LED                        A4  // D18; Analog In; PWM //
+    #define PIN_UI_BUTTON                     A3  // D17; Analog In; PWM //
+    #define PIN_UV_LED_RELAY                  A2  // D15; Analog In  //
+    #define PIN_PIR_SENSOR                    A1  // D14; Analog In  //
+    #define PIN_LIMIT_SWITCH                  A0  // DAC; Analog In    //
+
+    #define PIN_SYS_LED                       13  // OB-LED; PWM  //
+    #define PIN_BUZZER                        12  // PWM          //
+    #define PIN_FAN_PWM                       11  // PWM          //
+    #define PIN_VS1053_DSEL                   10  // MusicMaker XD-CS; PWM  //
+    #define PIN_VS1053_DREQ                    9  // MusicMaker DREQ; PWM; A7_VBAT_Read //
+    #define PIN_SPI_VS1053_CS                  6  // MusicMaker MP3-CS; PWM  //
+    #define PIN_SPI_SD_CS                      5  // MusicMaker SD-CS; PWM  //
+
+    //#define PIN_                             1  // TX1; PWM//
+    //#define PIN_                             0  // RX0 (avoid use) //
+
+    // Special Pin Defines for Feather M0 Express
+    //--------------------------------------------------------------------------
+    #define PIN_VS1053_RESET                  -1  // VS1053 reset pin (not used!)
+    #define PIN_POT                           -1  // not used 
+
+    #define PIN_VBAT                          A7  // Shared with D9
+
+    #define PIN_PIXEL                          8  // Onboard NeoPixel, No GPIO Pin
+
+    // requires Adafruit_SPIFlash Lib: https://github.com/adafruit/Adafruit_SPIFlash
+    #define PIN_FLASH_SCK                      3  // SPI1; Onboard 2MB Flash Memory, No GPIO Pin
+    #define PIN_FLASH_MISO                     2  // SPI1; Onboard 2MB Flash Memory, No GPIO Pin
+    #define PIN_FLASH_MOSI                     4  // SPI1; Onboard 2MB Flash Memory, No GPIO Pin
+    #define PIN_FLASH_CS                      38  // SPI1; Onboard 2MB Flash Memory, No GPIO Pin
 
 
 //==============================================================================

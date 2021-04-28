@@ -1,9 +1,16 @@
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/include
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit SPIFlash/src
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SdFat - Adafruit Fork/src
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/FlashStorage/src
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit VS1053 Library
+-IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SD
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/SPI
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA/utility
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit Motor Shield V2 Library
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit Motor Shield V2 Library/utility
+-IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Wire
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit NeoPixel
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Arduino-MemoryFree
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SimpleCLI/src
@@ -25,11 +32,6 @@
 -IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/cores/arduino/TinyUSB/Adafruit_TinyUSB_ArduinoCore/tinyusb/src
 -IC:/Users/mattg/.platformio/packages/framework-cmsis/CMSIS/DSP/Include
 -IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/variants/feather_m0_express
--IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/SD
--IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA
--IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Adafruit_ZeroDMA/utility
--IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/SPI
--IC:/Users/mattg/.platformio/packages/framework-arduino-samd-adafruit/libraries/Wire
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/AccelStepper/src
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit BusIO
 -IC:/Git/Either-Or/firmware/platformio_ide/either-or_fw/.pio/libdeps/default/Adafruit GFX Library

@@ -1,7 +1,7 @@
 /*
 //==============================================================================
-  Project:
-  Client:
+  Project: Either-Or
+  Client: AA Plasma / Greg Fridman
 
   Developer: Matt Starfield (matt.starfield@nextfab.com) | NextFab
   GitHub:    https://github.com/MattStarfield
@@ -106,7 +106,17 @@
 
     #endif  // END pre-processor directives
 
+  // Application-specific libraries
+  //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // see platformio.ini lib_deps
 
+    #include "Adafruit_VS1053.h"        // MusicMaker Featherwing       // https://github.com/adafruit/Adafruit_VS1053_Library
+
+    #include "Adafruit_MotorShield.h"   // Motor Shield V2 Featherwing  // https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library
+
+    // Compile error probably related to original Arduino SD / SDFat.h and Adafruit Forked version
+    //#include "SdFat.h"                  // Adafruit Forked Version      // https://github.com/adafruit/SdFat
+    //#include "Adafruit_SPIFlash.h"      // Feather M0 Express Onboard 2MB Flash // https://github.com/adafruit/Adafruit_SPIFlash
 
 //==============================================================================
 // == Declare & Initialize Global Variables == //
@@ -243,7 +253,7 @@
     // * polaritySetting (optional): COMMON_NEGATIVE (default), COMMON_POSITIVE
 
     EasyLed sysLed(PIN_SYS_LED);
-    EasyLed uiLed(PIN_FADE_LED);
+    EasyLed uiLed(PIN_UI_LED);
 
   // EasyBuzzer Objects     // https://github.com/evert-arias/EasyBuzzer/
   //----------------------------------------------------------------------------
@@ -1226,7 +1236,8 @@
       // This allows us to use the same code base for a variety of MCUs with no wasted compiled code size
       // https://www.deviceplus.com/arduino/arduino-preprocessor-directives-tutorial/
 
-      #if defined(__AVR__)  // Preprocessor directive to compile based on MCU architecture
+      // Preprocessor directive to compile based on MCU architecture
+      #if defined(__AVR__)
 
         // Retrieve strings stored in PROGMEM
         snprintf_P (  progMemStringBuffer,
@@ -1239,7 +1250,8 @@
 
         // END __AVR__
 
-      #elif defined(SAM)  // Preprocessor directive to compile based on MCU architecture
+      // Preprocessor directive to compile based on MCU architecture
+      #elif defined(SAM)
 
         // SAM MCUs don't separate Flash and RAM, so "PROGMEM" is not employed
         snprintf_P (  progMemStringBuffer,
@@ -1396,8 +1408,8 @@
     // Initialize Output Pins
     //----------------------------------------------------------------------------
       digitalWrite(PIN_SYS_LED, LOW);
-      digitalWrite(PIN_FADE_LED, LOW);
-      digitalWrite(PIN_BUZZER, LOW);
+      digitalWrite(PIN_UI_LED, LOW);
+      //digitalWrite(PIN_BUZZER, LOW);
 
 
     // Initialize Analog Input Range
