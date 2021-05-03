@@ -207,9 +207,8 @@
 
   // Sensor Input vars
   //----------------------------------------------------------------------------
-    Average<uint16_t> pressureSamples(PRESSURE_NUM_SAMPLES);
-
-    float pressureZeroOffset_kPa = 0.0;                     // offset value used to "zero-out" pressure reading
+    //Average<uint16_t> pressureSamples(PRESSURE_NUM_SAMPLES);
+    //float pressureZeroOffset_kPa = 0.0;                     // offset value used to "zero-out" pressure reading
 
   // Actuator Output vars
   //----------------------------------------------------------------------------
@@ -1378,38 +1377,37 @@
     //----------------------------------------------------------------------------
     // Options: OUTPUT, INPUT, INPUT_PULLUP
 
-    // Arduino Nano   https://upload.wikimedia.org/wikipedia/commons/e/e4/Arduino-nano-pinout.png
+    // Adafruit Feather M0 Express Pinout: https://learn.adafruit.com/assets/96531
     //----------------------------------------------------------------------------
-      //EasyLed Object: sysLed           // 13  // SPI-SCK; OB-LED //
-      //pinMode();                       // 12  // SPI-MISO   // Neopixel Data Output, used by pixel_config.h
-      //pinMode();                       // 11  // SPI-MOSI; PWM //
-      //pinMode();                       // 10  // PWM        //
-      //EasyLed Object: uiLed            //  9  // PWM        //
-      //pinMode();                       //  8  //            // not on Feather
-      //pinMode();                       //  7  //            // not on Feather
-      //pinMode();                       //  6  // PWM        //
-      //pinMode();                       //  5  // PWM        //
-      //pinMode();                       //  4  //            // not on Feather
-      //pinMode();                       //  3  // INT1; PWM  //
-      // EasyButton Object: uiButton     //  2  // INT0       //
-      //pinMode();                       //  0  // RX0 (avoid use) //
-      //pinMode();                       //  1  // TX1        //
+      //I2C_SCL
+      //I2C_SDA
 
-      //pinMode();                       // A0  // Analog In  //
-      //pinMode();                       // A1  // Analog In  //
-      //pinMode();                       // A2  // Analog In  //
-      //pinMode();                       // A3  // Analog In  //
-      //pinMode();                       // A4  // I2C-SDA; A-In //
-      //pinMode();                       // A5  // I2C-SCL; A-In //
-      //pinMode();                       // A6  // Analog In ONLY //
-      //pinMode();                       // A7  // Analog In ONLY //
+      //SPI_SCK
+      //SPI_MOSI
+      //SPI_MISO
+
+      pinMode(PIN_POT, INPUT_PULLUP);           // A5 // not used
+      pinMode(PIN_UI_LED, OUTPUT);              // A4
+      pinMode(PIN_UI_BUTTON, INPUT);            // A3
+      pinMode(PIN_UV_LED_RELAY, OUTPUT);        // A2
+      pinMode(PIN_PIR_SENSOR, INPUT);           // A1
+      pinMode(PIN_LIMIT_SWITCH, INPUT_PULLUP);  // A0
+
+      pinMode(PIN_SYS_LED, OUTPUT);             // 13
+      pinMode(PIN_BUZZER, OUTPUT);              // 12
+      pinMode(PIN_FAN_PWM, OUTPUT);             // 11
+      //VS1053_DSEL                             // 10
+      //VS1053_DREQ                             //  9
+      //SPI_VS1053_CS                           //  6
+      //SPI_SD_CS                               //  5
 
 
     // Initialize Output Pins
     //----------------------------------------------------------------------------
-      digitalWrite(PIN_SYS_LED, LOW);
       digitalWrite(PIN_UI_LED, LOW);
-      //digitalWrite(PIN_BUZZER, LOW);
+      digitalWrite(PIN_UV_LED_RELAY, LOW);
+      digitalWrite(PIN_SYS_LED, LOW);
+      digitalWrite(PIN_BUZZER, LOW);
 
 
     // Initialize Analog Input Range
@@ -1550,6 +1548,8 @@
       // Enable Watchdog Timer
       //----------------------------------------------------------------------------
         Watchdog.enable(WATCHDOG_TIMER_MS);   // turn on watchdog timer just before entering loop, reset watchdog each loop iteraton
+        //Watchdog.disable();
+
 
       // Initialize PotVal Smoothing Array
       //----------------------------------------------------------------------------
@@ -1557,6 +1557,7 @@
         {
           potValSamples.push(analogRead(PIN_POT));   // fill Average object
         }
+
 
       // Attach Interrupts
       //----------------------------------------------------------------------------

@@ -92,7 +92,7 @@
     #define PIN_SPI_MOSI                      23  // MusicMaker SPI-MOSI  //
     #define PIN_SPI_MISO                      22  // MusicMaker SPI-MISO  //
 
-    //#define PIN_                              A5  // D19; Analog In  //
+    #define PIN_POT                           A5  // D19; Analog In  // not used
     #define PIN_UI_LED                        A4  // D18; Analog In; PWM //
     #define PIN_UI_BUTTON                     A3  // D17; Analog In; PWM //
     #define PIN_UV_LED_RELAY                  A2  // D15; Analog In  //
@@ -113,7 +113,6 @@
     // Special Pin Defines for Feather M0 Express
     //--------------------------------------------------------------------------
     #define PIN_VS1053_RESET                  -1  // VS1053 reset pin (not used!)
-    #define PIN_POT                           -1  // not used 
 
     #define PIN_VBAT                          A7  // Shared with D9
 
@@ -178,7 +177,7 @@
   #define LOOP_TIME_NUM_SAMPLES             10
 
   #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
-  #define WAIT_MESSAGE_PRINT_PERIODICALLY   false // determines if FSM_SYS_WAIT message prints once or refreshes periodically
+  #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
 
   #define CLI_INPUT_DESIGNATOR              "\n\r<< "
   #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
