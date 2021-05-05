@@ -100,7 +100,7 @@
     #define PIN_PIR_SENSOR                    A0  // DAC; Analog In    //
 
     #define PIN_SYS_LED                       13  // OB-LED; PWM  //
-    #define PIN_BUZZER                        12  // PWM          //
+    #define PIN_FAN_TACH                      12  // PWM          //
     #define PIN_FAN_PWM                       11  // PWM          //
     #define PIN_VS1053_DSEL                   10  // MusicMaker XD-CS; PWM  //
     #define PIN_VS1053_DREQ                    9  // MusicMaker DREQ; PWM; A7_VBAT_Read //

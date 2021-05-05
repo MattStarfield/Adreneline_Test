@@ -368,7 +368,7 @@
 
   void cliSet_cb(cmd* cmdPtr)
   {
-    EasyBuzzer.beep(BEEP_CHIRP);    // audible inidicator that command has run
+    //EasyBuzzer.beep(BEEP_CHIRP);    // audible inidicator that command has run
 
     // string to indicate that what follows is output from CLI
     // useful for parsing output stream to PC / GUI program
@@ -1382,7 +1382,7 @@
       pinMode(PIN_PIR_SENSOR, INPUT);           // A0
 
       pinMode(PIN_SYS_LED, OUTPUT);             // 13
-      pinMode(PIN_BUZZER, OUTPUT);              // 12
+      pinMode(PIN_FAN_TACH, INPUT);             // 12
       pinMode(PIN_FAN_PWM, OUTPUT);             // 11
       //VS1053_DSEL                             // 10
       //VS1053_DREQ                             //  9
@@ -1395,7 +1395,7 @@
       digitalWrite(PIN_UV_LED_RELAY, LOW);
       digitalWrite(PIN_UI_LED, LOW);
       digitalWrite(PIN_SYS_LED, LOW);
-      digitalWrite(PIN_BUZZER, LOW);
+      //digitalWrite(PIN_BUZZER, LOW);
       digitalWrite(PIN_FAN_PWM, AL_DISABLE);
 
 
@@ -1467,8 +1467,8 @@
 
      // EasyBuzzer Setup
      //----------------------------------------------------------------------------
-        EasyBuzzer.setPin(PIN_BUZZER);    // this would normally go in Object Declaration, but EasyBuzzer only supports 1 instance, so there's no declaration
-        EasyBuzzer.stopBeep();
+        //EasyBuzzer.setPin(PIN_BUZZER);    // this would normally go in Object Declaration, but EasyBuzzer only supports 1 instance, so there's no declaration
+        //EasyBuzzer.stopBeep();
       // -- END EasyBuzzer Setup
 
 
@@ -1897,7 +1897,7 @@
 
               // Set LED & Buzzer Scenes
                 // cannot use EasyBuzzer here bc of hold in while() below
-              analogWrite(PIN_BUZZER, 32);        // set buzzer to low buzz to test
+              //analogWrite(PIN_BUZZER, 32);        // set buzzer to low buzz to test
 
               while(uiButton.isPressed())         // hold here until uiButton is released
               {
@@ -2078,7 +2078,7 @@
       //----------------------------------------------------------------------------
       {
         //EasyBuzzer.beep(BEEP_OK);     // set buzzer beep
-        EasyBuzzer.beep(BEEP_ATTENTION);     // set buzzer beep
+        //EasyBuzzer.beep(BEEP_ATTENTION);     // set buzzer beep
 
         // Initialize Session variables
         //----------------------------------------------------------------------------
@@ -2305,7 +2305,7 @@
       //----------------------------------------------------------------------------
       {
         sysLed.blink(LED_ERROR);       // set led scene
-        EasyBuzzer.beep(BEEP_ERROR);  // set attention buzzer beep
+        //EasyBuzzer.beep(BEEP_ERROR);  // set attention buzzer beep
 
         Debug.print(DBG_ERROR,    F("[E] * ERROR from %s: %s"), getProgMemString(fsmStateString[fsmStatePrior]), getProgMemString(exitConditionString[sessionExitCondition]));
         Debug.print(DBG_ERROR,    F("[E]   * Push button to continue...\n\r"));
@@ -2437,7 +2437,7 @@
 
         // Update Buzzer Outputs
         //----------------------------------------------------------------------------
-          EasyBuzzer.update();
+          //EasyBuzzer.update();
 
 
       //----------------------------------------------------------------------------
