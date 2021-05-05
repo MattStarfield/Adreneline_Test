@@ -188,12 +188,12 @@
 
     // Potentiometer
     //----------------------------------------------------------------------------
-      Average<uint16_t> potValSamples(POT_NUM_SAMPLES);
+      //Average<uint16_t> potValSamples(POT_NUM_SAMPLES);
 
-      uint8_t potValIndex = 0;
-      int16_t potValAvg = -1;
+      //uint8_t potValIndex = 0;
+      //int16_t potValAvg = -1;
 
-      bool     potValUpdateFlag = false;
+      //bool     potValUpdateFlag = false;
 
   // UI Output vars
   //----------------------------------------------------------------------------
@@ -207,14 +207,24 @@
 
   // Sensor Input vars
   //----------------------------------------------------------------------------
-    //Average<uint16_t> pressureSamples(PRESSURE_NUM_SAMPLES);
-    //float pressureZeroOffset_kPa = 0.0;                     // offset value used to "zero-out" pressure reading
+    bool pirOutputPinState = false;
+    bool pirMotionDetectedFlag = false;
+    uint32_t pirLastMotionTimestamp_ms = 0;
 
   // Actuator Output vars
   //----------------------------------------------------------------------------
     bool fanState = false;        // On / Off
-    uint8_t fanSpeedPWM = 0;      // Speed of fan when fanState = On
+    uint8_t fanSpeedPwm = 0;      // Speed of fan when fanState = On
 
+    bool fanIsRunningFlag = false;    // Flag to read if the fan is currently running
+    uint16_t fanTachCounterNow = 0;
+    uint16_t fanTachCounterPrior = 0;
+    uint32_t fanCheckIntervalTimestamp_ms = 0;
+    uint32_t fanRunningTimestamp_ms = 0;                  // Timestamp for fan start/stop events
+    bool fanSpeedUpdateFlag = true;                       // flag to update fan speed once per purification stage
+    //uint8_t fanSpeedSetting = FAN_SPEED_SETTING_DEFAULT;  // default set in app_settings.h
+
+    bool uvLedState = false;
 
 //==============================================================================
 // == Declare Global Objects == //
@@ -277,6 +287,16 @@
   #endif  // PIXEL_CONFIG_H
 
 
+  // MusicMaker Object
+  //----------------------------------------------------------------------------
+  Adafruit_VS1053_FilePlayer audioPlayer = Adafruit_VS1053_FilePlayer(PIN_VS1053_RESET,   // not used!
+                                                                      PIN_SPI_VS1053_CS,
+                                                                      PIN_VS1053_DSEL,
+                                                                      PIN_VS1053_DREQ,
+                                                                      PIN_SPI_SD_CS);
+
+
+
 //==============================================================================
 // == App Function Protoypes == //
 //==============================================================================
@@ -287,13 +307,11 @@
   void cliHelp_cb(cmd*);
   void cliError_cb(cmd_error*);
   void cliSet_cb(cmd*);
-  //void cliPressure_cb(cmd*);          // app specific
 
   void uiButtonISR();
   void uiButtonPressed_cb();
   void uiButtonHeld_cb();
   void uiButtonSequence_cb();
-  void uiLedOnAgain();                // app specific
 
   void myISR();
 
@@ -313,10 +331,6 @@
   template <typename T> void PROGMEM_readAnything(const T *, T&);
   template <typename T> T PROGMEM_getAnything(const T *);
 
-  //long getVcc_mV();
-
-  //float getPressure_kPa();            // app specific
-  //void setPressureZeroOffset();       // app specific
 
 
 //==============================================================================
@@ -623,7 +637,7 @@
     // END -- // uiButton Argument
 
 
-/*
+
     // fanState Argument
       inputArg = inputCmd.getArgument("fanState");   // create local Arg object
       inputStr = inputArg.getValue();                // convert Arg to input String
@@ -641,9 +655,9 @@
         Serial.print(F("] "));
       }
     // END -- fanState Arugment
-*/
 
-/*
+
+
     // fanSpeedPwm Argument
       inputArg = inputCmd.getArgument("fanSpeedPwm");   // create local Arg object
       inputStr = inputArg.getValue();                // convert Arg to input String
@@ -660,8 +674,8 @@
             && (tempValue <= 255)
           )
           {
-            fanSpeedPWM = tempValue;
-            Serial.print(fanSpeedPWM);
+            fanSpeedPwm = tempValue;
+            Serial.print(fanSpeedPwm);
           }
         else
           {
@@ -673,7 +687,7 @@
           Serial.print(F("] "));
       }
     // END -- // fanSpeedPwm Argument
-*/
+
 
   } // END -- cliSet_cb()
 
@@ -978,6 +992,21 @@
       // isrFlag = true;
 
     } // END myISR()
+
+
+    void fanTachISR()
+    {
+      // When the fan tachometer triggers this ISR, simply log that the fan
+      // is running by setting the flag. We don't need to know how fast it's going,
+      // just confirm that it's running
+
+      //fanIsRunningFlag = true;
+
+      fanTachCounterNow++;
+
+      //Debug.print(DBG_DEBUG, F("[D] fan ISR"));
+
+    } // END fanTachISR()
 
 
   // Print Helper Functions
@@ -1321,47 +1350,6 @@
     } // END getVcc_mV()
 */
 
-/*
-    float getPressure_kPa()
-    {
-      // Sample Pressure sensor output
-        for(int i = 0; i < PRESSURE_NUM_SAMPLES; i++)
-        {
-          pressureSamples.push(analogRead(PIN_PRESSURE_SENSOR));   // fill Average object
-        }
-
-      // Use Mean of pressure samples to calculate Pressure
-      // Transfer Function: pg. 6 of datasheet
-      // https://www.nxp.com/docs/en/data-sheet/MPX5010.pdf
-        float pressure_kPa = ( (pressureSamples.mean()/1023.0) - 0.04 )/0.09;
-
-      // Eliminate "-0.00" output (artifact of float)
-        if(pressure_kPa <= 0)
-        {
-          pressure_kPa = 0.0;
-        }
-
-      return pressure_kPa;
-
-    } // END getPressure_kPa()
-*/
-
-/*
-    void setPressureZeroOffset()
-    {
-      // get current pressure reading and store that as the Zero Offset Value
-      pressureZeroOffset_kPa = getPressure_kPa();
-
-      Serial.print("ZEROED");
-      Serial.print("\r\n");             //default End of Line sequence for Bonsai
-
-      uiLed.offUntil(100, uiLedOnAgain);  // flash LED OFF for 100 ms, then turn back on
-
-      EasyBuzzer.beep(BEEP_OK);    // audible inidicator that command has run
-
-    } // END setPressureZeroOffset()
-*/
-
 
 
 
@@ -1379,19 +1367,19 @@
 
     // Adafruit Feather M0 Express Pinout: https://learn.adafruit.com/assets/96531
     //----------------------------------------------------------------------------
-      //I2C_SCL
-      //I2C_SDA
+      //I2C_SCL                                 // 27
+      //I2C_SDA                                 // 26
 
-      //SPI_SCK
-      //SPI_MOSI
-      //SPI_MISO
+      //SPI_SCK                                 // 24
+      //SPI_MOSI                                // 23
+      //SPI_MISO                                // 22
 
-      pinMode(PIN_POT, INPUT_PULLUP);           // A5 // not used
+      pinMode(PIN_UV_LED_RELAY, OUTPUT);        // A5
       pinMode(PIN_UI_LED, OUTPUT);              // A4
       pinMode(PIN_UI_BUTTON, INPUT);            // A3
-      pinMode(PIN_UV_LED_RELAY, OUTPUT);        // A2
-      pinMode(PIN_PIR_SENSOR, INPUT);           // A1
-      pinMode(PIN_LIMIT_SWITCH, INPUT_PULLUP);  // A0
+      pinMode(PIN_LIMIT_SWITCH2, INPUT_PULLUP); // A2
+      pinMode(PIN_LIMIT_SWITCH1, INPUT_PULLUP); // A1
+      pinMode(PIN_PIR_SENSOR, INPUT);           // A0
 
       pinMode(PIN_SYS_LED, OUTPUT);             // 13
       pinMode(PIN_BUZZER, OUTPUT);              // 12
@@ -1404,10 +1392,11 @@
 
     // Initialize Output Pins
     //----------------------------------------------------------------------------
-      digitalWrite(PIN_UI_LED, LOW);
       digitalWrite(PIN_UV_LED_RELAY, LOW);
+      digitalWrite(PIN_UI_LED, LOW);
       digitalWrite(PIN_SYS_LED, LOW);
       digitalWrite(PIN_BUZZER, LOW);
+      digitalWrite(PIN_FAN_PWM, AL_DISABLE);
 
 
     // Initialize Analog Input Range
@@ -1536,6 +1525,26 @@
         // * useful for inputs of unknown or user decided format, iike strings with spaces (names, address, passphrase)
         //cmdSum = cli.addBoundlessCommand("sum", cliSum_cb);  // ("cmdName, cmdNameAlias", cmdCallbackFunction);
 
+
+      // MusicMaker Setup
+      //----------------------------------------------------------------------------
+        if(!audioPlayer.begin())        // initialize the audio IC (VS1053)
+        {
+          Debug.print(DBG_WARNING, F("[W] * Audio Chip \t NOT FOUND"));
+        }
+
+        if (!SD.begin(PIN_SPI_SD_CS))   // initialize the audio SD Card
+        {
+          Debug.print(DBG_WARNING, F("[W] * Audio SD Card \t NOT FOUND"));
+        }
+
+        // If DREQ is on an interrupt pin we can use audioPlayer.startPlayingFile()
+        // to play audio in background while MCU does other tasks
+        audioPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+
+        // Set volume for left, right channels from 1 to 10. lower numbers == louder volume!
+        audioPlayer.setVolume(1,1);   // max volume
+
     // == END Object Setup
 
 
@@ -1553,10 +1562,10 @@
 
       // Initialize PotVal Smoothing Array
       //----------------------------------------------------------------------------
-        for(int i = 0; i < POT_NUM_SAMPLES; i++)
-        {
-          potValSamples.push(analogRead(PIN_POT));   // fill Average object
-        }
+        //for(int i = 0; i < POT_NUM_SAMPLES; i++)
+        //{
+        //  potValSamples.push(analogRead(PIN_POT));   // fill Average object
+        //}
 
 
       // Attach Interrupts
@@ -1619,9 +1628,14 @@
           uiButton.read(); // EasyButton: read() checks button for non-interrupt enabled pins at each loop cycle
 
 
+        // Update PIR Motion Sensor Reading
+        //----------------------------------------------------------------------------
+          pirOutputPinState = digitalRead(PIN_PIR_SENSOR);
+
+
         // Update Potentiometer Reading
         //----------------------------------------------------------------------------
-
+/*
           potValSamples.push(analogRead(PIN_POT));             // add new pot reading to the array
 
           // Use PotVal to set Fan speed, actuated at end of loop()
@@ -1635,12 +1649,13 @@
             potValAvg = tempPotValAvg;                        // update value
             potValUpdateFlag = true;                        // flag to handle input refresh
 
-            fanSpeedPWM = map(potValAvg, 0, 900, FAN_PWM_MIN, FAN_PWM_MAX);   // map potVal range to fanSpeedPWM range
+            fanSpeedPwm = map(potValAvg, 0, 900, FAN_PWM_MIN, FAN_PWM_MAX);   // map potVal range to fanSpeedPwm range
 
             //Debug.print(DBG_DEBUG,    F("\n\r[D] potValAvg: %d"), potValAvg );
-            //Debug.print(DBG_DEBUG,    F("[D] fanSpeedPWM: %d"), fanSpeedPWM );
+            //Debug.print(DBG_DEBUG,    F("[D] fanSpeedPwm: %d"), fanSpeedPwm );
 
           }
+*/
         // END -- Update Potentiometer Reading
 
 
@@ -1742,7 +1757,14 @@
           // Actuator Output vars
           //----------------------------------------------------------------------------
             fanState = false;
-            fanSpeedPWM = FAN_PWM_DEFAULT;
+            fanSpeedPwm = FAN_PWM_MIN;
+
+            uvLedState = false;
+
+            audioPlayer.stopPlaying();
+
+            //stepper OFF
+
 
 
 
@@ -1796,7 +1818,9 @@
 
               // Set LED & Buzzer Scenes
                 sysLed.blink(LED_HEARTBEAT);       // set led scene
-                EasyBuzzer.beep(BEEP_OK);          // set buzzer beep
+                //EasyBuzzer.beep(BEEP_OK);          // set buzzer beep
+
+                audioPlayer.startPlayingFile("/startup1.mp3");
 
               // Set up fsmState
               //----------------------------------------------------------------------------
@@ -1848,7 +1872,9 @@
 
               // Set LED & Buzzer Scenes
                 sysLed.blink(LED_ATTENTION);       // set attention led scene
-                EasyBuzzer.beep(BEEP_ATTENTION);  // set attention buzzer beep
+                //EasyBuzzer.beep(BEEP_ATTENTION);  // set attention buzzer beep
+
+                audioPlayer.startPlayingFile("/startup1.mp3");
 
               // Set up fsmState
               //----------------------------------------------------------------------------
@@ -1957,6 +1983,7 @@
       //----------------------------------------------------------------------------
       {
         sysLed.blink(LED_HEARTBEAT);   // set led scene for App Initialization
+        //uiLed.blink(LED_STABILIZING);   // set led scene to show PIR needs to stabilize
         //EasyBuzzer.stopBeep();
 
         // use Serial.print instead of Debug.print() to ignore the state of Debug.timestampXX()
@@ -2046,8 +2073,6 @@
       break;
 
 
-
-
       //----------------------------------------------------------------------------
       case FSM_SES_INIT:
       //----------------------------------------------------------------------------
@@ -2127,6 +2152,7 @@
 
       } // END -- FSM_STG_EXIT_STAGE1
       break;
+
 
 
 
@@ -2386,16 +2412,22 @@
       // Update Actuator Outputs
       //----------------------------------------------------------------------------
 
-/*
+        // Fan
         if(fanState)
         {
-          analogWrite(PIN_FAN_PWM, fanSpeedPWM);       // Turn fan ON to PWM setting
+          // fanSpeedPwm duty cycle must be INVERTED (255-fanSpeedPwm)
+          // bc the signal controls MOSFET GND state instead of direct PWM drive
+          analogWrite(PIN_FAN_PWM, (255-fanSpeedPwm));       // Turn fan ON to PWM setting
         }
         else
         {
-          analogWrite(PIN_FAN_PWM, 0);                 // Turn fan OFF
+          analogWrite(PIN_FAN_PWM, (255-0));                 // Turn fan OFF
         }
-*/
+
+        // UV LED Module
+        digitalWrite(PIN_UV_LED_RELAY, uvLedState);
+
+
 
 
         // Update LED Outputs

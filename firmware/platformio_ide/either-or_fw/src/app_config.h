@@ -92,12 +92,12 @@
     #define PIN_SPI_MOSI                      23  // MusicMaker SPI-MOSI  //
     #define PIN_SPI_MISO                      22  // MusicMaker SPI-MISO  //
 
-    #define PIN_POT                           A5  // D19; Analog In  // not used
+    #define PIN_UV_LED_RELAY                  A5  // D19; Analog In  // not used
     #define PIN_UI_LED                        A4  // D18; Analog In; PWM //
     #define PIN_UI_BUTTON                     A3  // D17; Analog In; PWM //
-    #define PIN_UV_LED_RELAY                  A2  // D15; Analog In  //
-    #define PIN_PIR_SENSOR                    A1  // D14; Analog In  //
-    #define PIN_LIMIT_SWITCH                  A0  // DAC; Analog In    //
+    #define PIN_LIMIT_SWITCH2                 A2  // D15; Analog In  //
+    #define PIN_LIMIT_SWITCH1                 A1  // D14; Analog In  //
+    #define PIN_PIR_SENSOR                    A0  // DAC; Analog In    //
 
     #define PIN_SYS_LED                       13  // OB-LED; PWM  //
     #define PIN_BUZZER                        12  // PWM          //
@@ -114,7 +114,7 @@
     //--------------------------------------------------------------------------
     #define PIN_VS1053_RESET                  -1  // VS1053 reset pin (not used!)
 
-    #define PIN_VBAT                          A7  // Shared with D9
+    //#define PIN_VBAT                          A7  // Shared with D9
 
     #define PIN_PIXEL                          8  // Onboard NeoPixel, No GPIO Pin
 
@@ -145,6 +145,7 @@
     //          led.blink(    onFor_ms, offFor_ms,  cycles,  pauseFor_ms,  numOfSequeces,  onFinished_cb() );
     #define LED_HEARTBEAT     30,       200,        2,        1000,         0,              NULL
     #define LED_ATTENTION     50,       100,        5,        500,          0,              NULL
+    #define LED_STABILIZING   100,      150,        2,        0,            0,              NULL
     #define LED_ERROR         500,      500,        2,        0,            0,              NULL
     #define LED_ACTIVITY      100,      100,        1,        10,           1,              NULL
 
@@ -165,8 +166,22 @@
 
   // Potentiometer Settings
   //----------------------------------------------------------------------------
-    #define POT_TOLERANCE                  10
-    #define POT_NUM_SAMPLES                5
+    //#define POT_TOLERANCE                  10
+    //#define POT_NUM_SAMPLES                5
+
+
+  // Sensor Settings
+  //----------------------------------------------------------------------------
+    #define PIR_STABILIZATION_TIME_MS         30000 // ms, time required for PIR sensor to stabilize after power up
+    #define PIR_RESET_TIME_MS                 6000  // ms, time required for PIR to be ready after motion is no longer detected
+
+  // Actuator Settings
+  //----------------------------------------------------------------------------
+    #define FAN_PWM_DEFAULT                   255  // (0 - 255) default PWM duty cycle
+    #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
+    #define FAN_PWM_MIN                       50   // (0 - 255) Min PWM duty cycle allowed in software
+    #define FAN_TIMEOUT_MS                    2000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
+    #define FAN_CHECK_INTERVAL_MS             100  // period to wait between checking if fan is running
 
 //==============================================================================
 // == Other Macros == //

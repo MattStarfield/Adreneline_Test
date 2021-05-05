@@ -31,14 +31,25 @@
 
     FSM_SYS_INIT_APP,                     // print info based on deviceMode
 
+    FSM_SYS_INIT_PIR,
+
     FSM_SES_INIT,                 // initialize global vars related to SESSION
 
     // Various "Stages" can be nested within a "Session"
-      FSM_STG_INIT_STAGE1,                 // capture stageStartTimestamp, set output/actuator states
-      FSM_STG_RUN_STAGE1,                   // perform stage duties continuously until event triggers transition to EXIT
-      FSM_STG_EXIT_STAGE1,                  // reset output/actuator states
+      FSM_STG_INIT_OCCUPIED,
+      FSM_STG_RUN_OCCUPIED,
+      FSM_STG_EXIT_OCCUPIED,
 
-      //add more stages here...
+      FSM_STG_COUNTDOWN,
+
+      FSM_STG_INIT_UNOCCUPIED,
+      FSM_STG_RUN_UNOCCUPIED,
+      FSM_STG_EXIT_UNOCCUPIED,
+
+      FSM_STG_INIT_STAGE1,
+      FSM_STG_RUN_STAGE1,
+      FSM_STG_EXIT_STAGE1,
+
 
     FSM_SES_COUNT_CHECK,                // used to repeat stage list a set number of times (burn-in, test mode)
 
