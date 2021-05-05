@@ -36,14 +36,14 @@
 -->
 
 <!-- Project Title -->
-# <img src="/img/icon.png" alt="icon.png" width="30"> Project Name
-**Client**:
+# <img src="/img/icon.png" alt="icon.png" width="30"> Either-Or
+**Client**: AAPlasma / Greg Fridman
 
 <!-- Project Description -->
-Text of project description
+UV LED room-scale air purifier
 
 <!-- Main Project Image -->
-<img src="/img/main.png" alt="main.png" width="400">
+<img src="/img/prototype.jpg" alt="prototype.jpg" width="600">
 
 ---
 
@@ -106,7 +106,7 @@ Text of project description
 
 ## <img src="/img/hardware_icon.png" alt="hardware_icon.png" width="20"> Hardware
 
-**Bill of Materials**: [Google Sheet](https://) <!-- | [Simplified PDF](docs/bom-simplified.pdf)-->
+**Bill of Materials**: [Google Sheet](https://docs.google.com/spreadsheets/d/1uxv25DpGCV7qv-_Im_NRR5OFvUTFIbNF_wAqFNQ1yQ4/edit#gid=0) <!-- | [Simplified PDF](docs/bom-simplified.pdf)-->
 
 <!--**Photo Gallery**-->
 
@@ -136,9 +136,9 @@ Text of project description
 
 ## <img src="/img/firmware_icon.png" alt="firmware_icon.png" width="25"> Firmware
 
-**Source Code**: [`project_name`](firmware/platformio_ide)
+**Source Code**: [`either-or_fw`](firmware/platformio_ide)
 
-* **Target device**: [*dev board*](https://)
+* **Target device**: [*Adafruit Feather M0 Express*](https://www.adafruit.com/product/3403)
 
 * **IDE**: [PlatformIO IDE](https://platformio.org/)
 * **Libraries**: see `lib_deps` section in [`platformio.ini`](firmware/platformio_ide)
@@ -147,6 +147,8 @@ Text of project description
   * **Compiler Toolchain**:
 -->
 
+**Flow Diagram**:<br><br>
+<img src="/img/firmware_flow_diagram.png" alt="firmware_flow_diagram.png" width="300">
 
 
 ---
