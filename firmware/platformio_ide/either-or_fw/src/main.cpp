@@ -212,13 +212,6 @@
     bool pirMotionDetectedFlag = false;
     uint32_t pirLastMotionTimestamp_ms = 0;
 
-    bool limitSwitch1State = HIGH;    // assume limit switch is "open"
-    bool limitSwitch2State = HIGH;    // assume limit switch is "open"
-
-    bool shutterIsOpened = false;
-    bool shutterIsClosed = false;
-
-
 
   // Actuator Output vars
   //----------------------------------------------------------------------------
@@ -234,6 +227,16 @@
     //uint8_t fanSpeedSetting = FAN_SPEED_SETTING_DEFAULT;  // default set in app_settings.h
 
     bool uvLedState = false;
+
+
+    bool limitSwitch1State = HIGH;    // assume limit switch is "open"
+    bool limitSwitch2State = HIGH;    // assume limit switch is "open"
+
+    bool shutterIsOpened = false;
+    bool shutterIsClosed = false;
+
+    shutterState shutterDesiredState = STATE_NOT_SET;
+    shutterState shutterCurrentState = STATE_NOT_SET;
 
 //==============================================================================
 // == Declare Global Objects == //
@@ -1096,7 +1099,7 @@
                 //"\n\r"
                 "Device Mode:\t%s\n\r"
                 "Dev SN:\t\t%s\n\r"
-                "MFR ID:\t\t"                   // print last to utilize UniqueIDdump(Serial) function
+                "MFR ID:\t\t\n\r"                   // print last to utilize UniqueIDdump(Serial) function
                 ,
                 getProgMemString(deviceModeString[deviceMode]),
                 "YYWW.###"                    // 8-char serial number format based on production date YYWW
@@ -1653,29 +1656,49 @@
         //----------------------------------------------------------------------------
           pirOutputPinState = digitalRead(PIN_PIR_SENSOR);
 
+          if(pirIsStabilized)
+          {
+            if(pirOutputPinState)
+            {
+              uiLed.on();
+            }
+            else
+            {
+              uiLed.off();
+            }
+          }
 
-        // Update Limit Switch Readings
+        // Update shutterCurrentState
         //----------------------------------------------------------------------------
           limitSwitch1State = digitalRead(PIN_LIMIT_SWITCH1);
           limitSwitch2State = digitalRead(PIN_LIMIT_SWITCH2);
 
-          if(limitSwitch1State == LOW)
+          if( shutterDesiredState != RELEASED )
           {
-            shutterIsClosed = true;
-          }
-          else
-          {
-            shutterIsClosed = false;
-          }
-
-          if(limitSwitch2State == LOW)
-          {
-            shutterIsOpened = true;
-          }
-          else
-          {
-            shutterIsOpened = false;
-          }
+            if(         (limitSwitch1State == LOW)
+                     && (limitSwitch2State == HIGH)
+            )
+            {
+              shutterCurrentState = CLOSED;
+            }
+            else if(   (limitSwitch1State == HIGH)
+                    && (limitSwitch2State == LOW)
+            )
+            {
+              shutterCurrentState = OPEN;
+            }
+            else if(   (limitSwitch1State == HIGH)
+                    && (limitSwitch2State == HIGH)
+            )
+            {
+              shutterCurrentState = TRANSITIONING;
+            }
+            else
+            {
+              shutterCurrentState = SHUTTER_ERROR;
+            }
+          } // END -- if( shutterDesiredState != RELEASED )
+        // END -- Update shutterCurrentState
 
 
         // Update Potentiometer Reading
@@ -1708,15 +1731,28 @@
 
       // Handle ISR Input Flags
       //----------------------------------------------------------------------------
-        if( (fanTachCountNow-fanTachCountPrior) > 0)
+        // Loop time is much faster than fanTach triggers ISR,
+        // limit checking if fan is running to longer interval to
+        // allow ISR to accumulate fanTachCounterNow counts before checking if fan is running...
+        if( (millis() - fanCheckIntervalTimestamp_ms) >= FAN_CHECK_INTERVAL_MS)
         {
-          fanTachCountPrior = fanTachCountNow;
-          fanIsRunning = true;
-        }
-        else
-        {
-          fanIsRunning = false;
-        }
+          fanCheckIntervalTimestamp_ms = millis();
+
+          if((fanTachCountNow - fanTachCountPrior) > 0 )  // fan is running
+          {
+            fanTachCountPrior = fanTachCountNow;    // equate counters for next check
+
+            fanIsRunning = true;
+          }
+          else                                          // fan is not running
+          {
+            fanIsRunning = false;
+
+            fanRunningTimestamp_ms = millis();          // refresh timestamp when fan is stopped
+                                                        // this acts as a timestamp of when fan started running
+          }
+
+        } // -- END fan check interval
 
       // -- END Handle ISR Input Flags
 
@@ -1816,7 +1852,7 @@
 
             audioPlayer.stopPlaying();
 
-            stepper1->release();          // stepper goes limp
+            shutterDesiredState = RELEASED;
 
 
 
@@ -2135,7 +2171,8 @@
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
 
-        audioPlayer.startPlayingFile("/startup1.mp3");  // Play Start Up Sound
+        //audioPlayer.startPlayingFile("/startup1.mp3");  // Play Start Up Sound
+        audioPlayer.playFullFile("/startup1.mp3");  // Play Start Up Sound
 
         uiLed.blink(LED_STABILIZING);   // set led scene to show PIR needs to stabilize
 
@@ -2143,12 +2180,14 @@
         fanState = true;
         fanSpeedPwm = FAN_PWM_MIN;
 
+        shutterDesiredState = CLOSED;
+
         // keep UV LEDs off until:
         //  * shutter is confirmed CLOSED
         //  * fan is confirmed ON
         uvLedState = false;
 
-        pirIsStabilized = false;
+        //pirIsStabilized = false;  // this is set as false power up and will still be stable after "warm boot"
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
@@ -2197,7 +2236,7 @@
               }
 
           }
-          else                                                  // PIR is stabilized...
+          else if (!pirIsStabilized)                                    // PIR is stabilized...
           {
             waitStateRefreshTimestamp_ms = WAIT_MESSAGE_REFRESH_INTERVAL_MS;       // reset timestamp so it will automatically run once upon returning
 
@@ -2205,29 +2244,26 @@
 
             pirIsStabilized = true;
 
-            Debug.print(DBG_DEBUG,    F("[D] * PIR is Stabilized") );
+            Serial.println();
+            Debug.print(DBG_DEBUG, F("[D] * PIR is Stabilized") );
           }
         // END Wait for PIR to Stabilize
 
 
-        // Ensure Shutters are CLOSED
-          if(!shutterIsClosed)
-          {
-            stepClosed();
-          }
-
         // Check if UV LEDs can turn on while PIR is stabilizing...
-          if(     shutterIsClosed
+          if(     (shutterCurrentState == CLOSED)
               &&  fanIsRunning
+              &&  !uvLedState
             )
           {
             uvLedState = true;
+            Debug.print(DBG_DEBUG, F("[D] * UV LEDs are ON") );
           }
 
 
         // Check if we can leave this state...
           if(     pirIsStabilized
-              &&  shutterIsClosed
+              &&  (shutterCurrentState == CLOSED)
             )
           {
             // Set up transition to next fsmState
@@ -2730,6 +2766,7 @@
       //----------------------------------------------------------------------------
 
         // Fan
+        //----------------------------------------------------------------------------
         if(fanState)
         {
           // fanSpeedPwm duty cycle must be INVERTED (255-fanSpeedPwm)
@@ -2742,9 +2779,63 @@
         }
 
         // UV LED Module
-        digitalWrite(PIN_UV_LED_RELAY, uvLedState);
+        //----------------------------------------------------------------------------
+        if(fanIsRunning)    //fanIsRunning is determined from fanTachCount in "Handle ISRs"
+        {
+          digitalWrite(PIN_UV_LED_RELAY, uvLedState);
+        }
+        else
+        {
+          // Safety: Automatically turn UV LEDs OFF if fan isn't running
+          // UV LED block may build up heat if fan is not running
+          digitalWrite(PIN_UV_LED_RELAY, LOW);
+        }
 
 
+
+        // Shutter / Stepper
+        //----------------------------------------------------------------------------
+        if(shutterCurrentState != shutterDesiredState)
+        // when current amd desired shutter states do not match, actuate stepper here.
+        // limit switches are checked at "Poll Inputs" to update shutterCurrentState
+        {
+          switch(shutterDesiredState)
+          {
+            case CLOSED:
+            //----------------------------------------------------------------------------
+            {
+              stepper1->onestep(FORWARD, DOUBLE);
+            } // END -- CLOSED
+            break;
+
+            case OPEN:
+            //----------------------------------------------------------------------------
+            {
+              stepper1->onestep(BACKWARD, DOUBLE);
+            } // END -- OPEN
+            break;
+
+            case RELEASED:
+            //----------------------------------------------------------------------------
+            {
+              stepper1->release();
+              shutterCurrentState = RELEASED;
+
+              Debug.print(DBG_DEBUG, F("[D] Shutter RELEASED"));
+            } // END -- RELEASED
+            break;
+
+            default:
+            //----------------------------------------------------------------------------
+            {
+              Debug.print(DBG_WARNING, F("[W] Invalid shutterDesiredState: %s"), shutterStateString[shutterDesiredState]);
+              shutterDesiredState = shutterCurrentState;
+            } // END -- default
+            break;
+
+          } // END switch()
+
+        } // END if Update Shutter State
 
 
         // Update LED Outputs

@@ -55,27 +55,42 @@
     // Use deviceMode definitions in FSM_SYS_INIT_DEV to set debugLevel for each deviceMode
 
 
+
+//==============================================================================
+// == Other Macros == //
+//==============================================================================
+
   // Session Settings
   //----------------------------------------------------------------------------
-    #define SESSION_COUNTDOWN_TIME            5     // seconds
-    #define SESSION_REPEATS_NUM_OF_OPTIONS    2     // number of options in sessionRepeatsList[]
-
-  // Sensor Settings
-  //----------------------------------------------------------------------------
-
-    #define PRESSURE_NUM_SAMPLES              10     // number of Pressure Sensor readings to average over
-    #define PRESSURE_MAX_VALUE_KPA            10.0   // kPa - maximum value of pressure sensor range
-    #define PRESSURE_MAX_ERROR_KPA            0.5    // kPa - maximu error of pressure sensor reading
-
-  // Actuator Settings
-  //----------------------------------------------------------------------------
-    #define FAN_PWM_DEFAULT                   255  // (0 - 255) default PWM duty cycle
-    #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
-    #define FAN_PWM_MIN                       70   // (0 - 255) Min PWM duty cycle allowed in software
+  #define SESSION_COUNTDOWN_TIME            5     // seconds
+  #define SESSION_REPEATS_NUM_OF_OPTIONS    2     // number of options in sessionRepeatsList[]
 
   // Watchdog Timer Settings
   //----------------------------------------------------------------------------
-    #define WATCHDOG_TIMER_MS                 2000 // (ms), watchdog will reboot system if it hangs for this long
+  #define WATCHDOG_TIMER_MS                 2000 // (ms), watchdog will reboot system if it hangs for this long
+
+  #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
+
+  #define LOOP_TIME_NUM_SAMPLES             10
+
+  #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
+  #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
+
+  #define CLI_INPUT_DESIGNATOR              "\n\r<< "
+  #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
+
+  // LED & Pixel PWM Brightness values
+  //----------------------------------------------------------------------------
+    #define BRI_MAX                           255    // (0 - 255) Max allowable brightness
+    #define BRI_DEFAULT                       200
+    #define BRI_MIN                           50     // (0 - 255) Min visible brightness
+
+
+  // Active Low Logic
+  //----------------------------------------------------------------------------
+    #define AL_DISABLE                        true
+    #define AL_ENABLE                         false
+
 
 //==============================================================================
 // == Pin Configuration == //
@@ -177,60 +192,44 @@
 
   // Actuator Settings
   //----------------------------------------------------------------------------
+    // Fan
     #define FAN_PWM_DEFAULT                   100  // (0 - 255) default PWM duty cycle
     #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
     #define FAN_PWM_MIN                       52   // (0 - 255) Min PWM duty cycle allowed in software
     #define FAN_TIMEOUT_MS                    2000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
     #define FAN_CHECK_INTERVAL_MS             100  // period to wait between checking if fan is running
 
+    // Stepper, Motor Shield, Shutter
     #define MOTOR_SHIELD1_ADDR                0x60  // default I2C addr
     #define STEPPER1_STEPS_PER_REV            200   // http://adafru.it/324
     #define STEPPER1_PORT                     2
     #define STEPPER1_RPM_DEFAULT              10
 
-//==============================================================================
-// == Other Macros == //
-//==============================================================================
+    typedef enum shutterState
+    {
+      STATE_NOT_SET,
 
-  #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
+      CLOSED,
+      OPEN,
+      RELEASED,
+      TRANSITIONING,
+      SHUTTER_ERROR,
 
-  #define LOOP_TIME_NUM_SAMPLES             10
+      SHUTTER_NUM_STATES,
 
-  #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
-  #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
+    }; // END enum shutterState
 
-  #define CLI_INPUT_DESIGNATOR              "\n\r<< "
-  #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
+    const char shutterStateString [SHUTTER_NUM_STATES] [ENUM_STRING_BUFFER_SIZE] PROGMEM =
+    {
+      {"STATE_NOT_SET"},                    // default to catch uninitialized states
 
-  // LED & Pixel PWM Brightness values
-  //----------------------------------------------------------------------------
-    #define BRI_MAX                           255    // (0 - 255) Max allowable brightness
-    #define BRI_DEFAULT                       200
-    #define BRI_MIN                           50     // (0 - 255) Min visible brightness
+      {"CLOSED"},
+      {"OPEN"},
+      {"RELEASED"},
+      {"TRANSITIONING"},
+      {"SHUTTER_ERROR"},
 
-
-  // Active Low Logic
-  //----------------------------------------------------------------------------
-    #define AL_DISABLE                        true
-    #define AL_ENABLE                         false
-
-
-    // Data Types Value Ranges
-    //------------
-    //#define INT16_MAX                         SHRT_MAX   // int           // 2 bytes //  32,768
-    //#define INT16_MIN                         SHRT_MIN   // int           // 2 bytes // -32,768
-
-    //#define UINT16_MAX                        USHRT_MAX  // unsigned int  // 2 bytes //  65,535
-    //#define UINT16_MIN                        0          // unsigned int  // 2 bytes //  0
-
-    //#define INT32_MAX                         INT_MAX    // long          // 4 bytes //  2,147,483,647
-    //#define INT32_MIN                         INT_MIN    // long          // 4 bytes // -2,147,483,648
-
-    //#define UINT32_MAX                        UINT_MAX   // unsigned long // 4 bytes // 4294967295
-    //#define UINT32_MIN                        0          // unsigned long // 4 bytes // 0
-
-    //#define FLOAT_MAX                         FLT_MAX    // float         // 4 bytes  //  3.4028235E+38
-    //#define FLOAT_MIN                         FLT_MIN    // float         // 4 bytes  // -3.4028235E+38
+    };  // END -- exitConditionString[][]
 
 //==============================================================================
 // == Debug Print Helper Functions == //
