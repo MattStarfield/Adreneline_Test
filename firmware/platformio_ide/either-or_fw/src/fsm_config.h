@@ -31,7 +31,9 @@
 
     FSM_SYS_INIT_APP,                     // print info based on deviceMode
 
-    FSM_SYS_INIT_PIR,
+    FSM_SYS_INIT_STARTUP,         // play start up sound
+    FSM_SYS_RUN_STARTUP,          // wait 30 sec for PIR to stabilize
+    FSM_SYS_EXIT_STARTUP,
 
     FSM_SES_INIT,                 // initialize global vars related to SESSION
 
@@ -46,9 +48,9 @@
       FSM_STG_RUN_UNOCCUPIED,
       FSM_STG_EXIT_UNOCCUPIED,
 
-      FSM_STG_INIT_STAGE1,
-      FSM_STG_RUN_STAGE1,
-      FSM_STG_EXIT_STAGE1,
+      FSM_STG_INIT_DORMANT,
+      FSM_STG_RUN_DORMANT,
+      FSM_STG_EXIT_DORMANT,
 
 
     FSM_SES_COUNT_CHECK,                // used to repeat stage list a set number of times (burn-in, test mode)
@@ -92,15 +94,29 @@
 
       {"FSM_SYS_INIT_DEV"},
 
+      {"FSM_SYS_WAIT"},
+
       {"FSM_SYS_INIT_APP"},
 
-      {"FSM_SYS_WAIT"},
+      {"FSM_SYS_INIT_STARTUP"},
+      {"FSM_SYS_RUN_STARTUP"},
+      {"FSM_SYS_EXIT_STARTUP"},
 
       {"FSM_SES_INIT"},
 
-        {"FSM_STG_INIT_STAGE1"},
-        {"FSM_STG_RUN_STAGE1"},
-        {"FSM_STG_EXIT_STAGE1"},
+        {"FSM_STG_INIT_OCCUPIED"},
+        {"FSM_STG_RUN_OCCUPIED"},
+        {"FSM_STG_EXIT_OCCUPIED"},
+
+        {"FSM_STG_COUNTDOWN"},
+
+        {"FSM_STG_INIT_UNOCCUPIED"},
+        {"FSM_STG_RUN_UNOCCUPIED"},
+        {"FSM_STG_EXIT_UNOCCUPIED"},
+
+        {"FSM_STG_INIT_DORMANT"},
+        {"FSM_STG_RUN_DORMANT"},
+        {"FSM_STG_EXIT_DORMANT"},
 
       {"FSM_SES_COUNT_CHECK"},
 

@@ -177,11 +177,16 @@
 
   // Actuator Settings
   //----------------------------------------------------------------------------
-    #define FAN_PWM_DEFAULT                   255  // (0 - 255) default PWM duty cycle
+    #define FAN_PWM_DEFAULT                   100  // (0 - 255) default PWM duty cycle
     #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
-    #define FAN_PWM_MIN                       50   // (0 - 255) Min PWM duty cycle allowed in software
+    #define FAN_PWM_MIN                       52   // (0 - 255) Min PWM duty cycle allowed in software
     #define FAN_TIMEOUT_MS                    2000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
     #define FAN_CHECK_INTERVAL_MS             100  // period to wait between checking if fan is running
+
+    #define MOTOR_SHIELD1_ADDR                0x60  // default I2C addr
+    #define STEPPER1_STEPS_PER_REV            200   // http://adafru.it/324
+    #define STEPPER1_PORT                     2
+    #define STEPPER1_RPM_DEFAULT              10
 
 //==============================================================================
 // == Other Macros == //
