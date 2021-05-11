@@ -21,7 +21,7 @@
 // == App Info == //
 //==============================================================================
 
-  #define FIRMWARE_VERSION                  "v0.0.1"
+  #define FIRMWARE_VERSION                  "v1.0.0"
   #define FIRMWARE_NAME                     "Either-Or"
 
 //==============================================================================
@@ -187,8 +187,13 @@
 
   // Sensor Settings
   //----------------------------------------------------------------------------
-    #define PIR_STABILIZATION_TIME_MS         30000 // ms, time required for PIR sensor to stabilize after power up
-    #define PIR_RESET_TIME_MS                 6000  // ms, time required for PIR to be ready after motion is no longer detected
+    #define PIR_STABILIZATION_TIME_MS         30000   // ms, time required for PIR sensor to stabilize after power up
+    #define PIR_RESET_TIME_MS                 6000    // ms, time required for PIR to be ready after motion is no longer detected
+
+    #define PIR_NO_MOTION_TIMEOUT_MS          10000 //600000  //ms, duration of "no motion" for room to be considered UNOCCUPIED
+    #define COUNTDOWN_TIME_MS                 10000   //ms, minimum countdown time before switcing to UNOCCUPIED
+    #define UNOCCUPIED_TIMEOUT_MS             20000 //600000  //ms, max duration in UNOCCUPIED before moving to DORMANT
+    #define DORMANT_TIMEOUT_MS                20000 //36000000  //ms, max duration in DORMANT state before switching back to OCCUPIED
 
   // Actuator Settings
   //----------------------------------------------------------------------------
@@ -197,13 +202,15 @@
     #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
     #define FAN_PWM_MIN                       52   // (0 - 255) Min PWM duty cycle allowed in software
     #define FAN_TIMEOUT_MS                    2000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
-    #define FAN_CHECK_INTERVAL_MS             100  // period to wait between checking if fan is running
+    #define FAN_CHECK_INTERVAL_MS             1000  // period to wait between checking if fan is running
+
+    #define FAN_UV_LED_COOLDOWN_TIME_MS       5000 // ms, time for fan to continue running after UV LEDs are OFF
 
     // Stepper, Motor Shield, Shutter
     #define MOTOR_SHIELD1_ADDR                0x60  // default I2C addr
     #define STEPPER1_STEPS_PER_REV            200   // http://adafru.it/324
     #define STEPPER1_PORT                     2
-    #define STEPPER1_RPM_DEFAULT              10
+    #define STEPPER1_RPM_DEFAULT              1 //10
 
     typedef enum shutterState
     {

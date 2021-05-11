@@ -210,7 +210,9 @@
     bool pirIsStabilized = false;
     bool pirOutputPinState = false;
     bool pirMotionDetectedFlag = false;
-    uint32_t pirLastMotionTimestamp_ms = 0;
+    uint32_t pirMotionTimestamp_ms = 0;
+
+    uint32_t countdownTimestamp_ms = 0;
 
 
   // Actuator Output vars
@@ -1743,13 +1745,11 @@
             fanTachCountPrior = fanTachCountNow;    // equate counters for next check
 
             fanIsRunning = true;
+            fanRunningTimestamp_ms = millis();      // refresh timestamp 
           }
           else                                          // fan is not running
           {
             fanIsRunning = false;
-
-            fanRunningTimestamp_ms = millis();          // refresh timestamp when fan is stopped
-                                                        // this acts as a timestamp of when fan started running
           }
 
         } // -- END fan check interval
@@ -2171,16 +2171,18 @@
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
 
-        //audioPlayer.startPlayingFile("/startup1.mp3");  // Play Start Up Sound
-        audioPlayer.playFullFile("/startup1.mp3");  // Play Start Up Sound
+        audioPlayer.startPlayingFile("/startup1.mp3");  // Play Start Up Sound
+        //audioPlayer.playFullFile("/startup1.mp3");  // Play Start Up Sound
 
         uiLed.blink(LED_STABILIZING);   // set led scene to show PIR needs to stabilize
 
         // Turn Fan on Low
         fanState = true;
         fanSpeedPwm = FAN_PWM_MIN;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t LOW") );
 
         shutterDesiredState = CLOSED;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t CLOSED") );
 
         // keep UV LEDs off until:
         //  * shutter is confirmed CLOSED
@@ -2188,6 +2190,7 @@
         uvLedState = false;
 
         //pirIsStabilized = false;  // this is set as false power up and will still be stable after "warm boot"
+
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
@@ -2257,7 +2260,8 @@
             )
           {
             uvLedState = true;
-            Debug.print(DBG_DEBUG, F("[D] * UV LEDs are ON") );
+            Serial.println();
+            Debug.print(DBG_DEBUG, F("[D] * UV LED:\t ON") );
           }
 
 
@@ -2286,11 +2290,11 @@
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
-          // TEST CODE
-          setFsmStateNext(FSM_SYS_WAIT);
-          setFsmStateAfterWait(FSM_SES_INIT);      // then go to next state
+          // TEST CODE: TODO remove
+          ///setFsmStateNext(FSM_SYS_WAIT);
+          //setFsmStateAfterWait(FSM_SES_INIT);      // then go to next state
 
-          //setFsmStateNext(FSM_SES_INIT);
+          setFsmStateNext(FSM_SES_INIT);
           goToFsmStateNext();
 
       } // END -- FSM_SYS_EXIT_STARTUP
@@ -2334,9 +2338,19 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
+        audioPlayer.startPlayingFile("/alert001.mp3");  // Play Alert Sound
 
-        // App Code for stage initialization here...
+        pirMotionTimestamp_ms = millis();   // Start PIR Motion timer
 
+        fanState = true;
+        fanSpeedPwm = FAN_PWM_MIN;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t LOW") );
+
+        shutterDesiredState = CLOSED;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t CLOSED") );
+
+        // uvLedState set and monitored in RUN for safety
+        Debug.print(DBG_DEBUG, F("[D] * UV LED:\t ON") );
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
@@ -2351,13 +2365,52 @@
       case FSM_STG_RUN_OCCUPIED:
       //----------------------------------------------------------------------------
       {
+        // Safety: Monitor shutterCurrentState allow UV LEDs to be ON ...
+          if(     (shutterCurrentState == shutterDesiredState)    // shutterDesiredState set in FSM_STG_INIT_OCCUPIED
+              //&&  fanIsRunning
+              //&&  !uvLedState
+            )
+          {
+            uvLedState = true;
+            //Debug.print(DBG_DEBUG, F("[D] * UV LEDs are ON") );
+          }
+          else
+          {
+            uvLedState = false;
+          }
 
-        // App Code for stage tasks here...
+        // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
+          if(     !fanIsRunning
+              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+            )
+          {
+            uvLedState = false;
 
-        // Set up transition to next fsmState
-        //----------------------------------------------------------------------------
-          setFsmStateNext(FSM_STG_EXIT_OCCUPIED);
-          goToFsmStateNext();
+            // GOTO ERROR STATE...
+            sessionExitCondition = EXIT_SES_FAN_ERROR;
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_SYS_INIT_ERROR);
+              goToFsmStateNext();
+          }
+        // END uvLedState Safety Check
+
+        // Monitor PIR Motion Timer
+          if(pirOutputPinState)                 // when motion is detected ...
+          {
+            pirMotionTimestamp_ms = millis();   // reset PIR timer
+          }
+
+        // Decide if we can leave this state due to No Motion Timeout ...
+          if( (millis() - pirMotionTimestamp_ms) >= PIR_NO_MOTION_TIMEOUT_MS)
+          {
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_EXIT_OCCUPIED);
+              goToFsmStateNext();
+          }
+
 
       } // END -- FSM_STG_RUN_OCCUPIED
       break;
@@ -2373,7 +2426,7 @@
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
-          setFsmStateNext(FSM_STG_COUNTDOWN);
+          setFsmStateNext(FSM_STG_INIT_COUNTDOWN);
           goToFsmStateNext();
 
       } // END -- FSM_STG_EXIT_OCCUPIED
@@ -2382,21 +2435,115 @@
 
 
       //----------------------------------------------------------------------------
-      case FSM_STG_COUNTDOWN:
+      case FSM_STG_INIT_COUNTDOWN:
+      //----------------------------------------------------------------------------
+      {
+        stageStartTimestamp_ms = millis();  // Start recording duration in stage
+
+        //countdownTimestamp_ms = millis();   // Start countdown timer
+
+        audioPlayer.startPlayingFile("/countdwn.mp3");  // Start playing Countdown audio
+
+        fanState = true;
+        fanSpeedPwm = FAN_PWM_MIN;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t LOW") );
+
+        shutterDesiredState = CLOSED;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t CLOSED") );
+
+        // uvLedState set and monitored in RUN for safety
+        Debug.print(DBG_DEBUG, F("[D] * UV LED:\t ON") );
+
+        // Set up transition to next fsmState
+        //----------------------------------------------------------------------------
+          setFsmStateNext(FSM_STG_RUN_COUNTDOWN);
+          goToFsmStateNext();
+
+      } // END -- FSM_STG_INIT_COUNTDOWN
+      break;
+
+
+      //----------------------------------------------------------------------------
+      case FSM_STG_RUN_COUNTDOWN:
       //----------------------------------------------------------------------------
       {
 
-        // App Code for stage tasks here...
+        // Safety: Monitor shutterCurrentState allow UV LEDs to be ON ...
+          if(     (shutterCurrentState == shutterDesiredState)    // shutterDesiredState set in FSM_STG_INIT_OCCUPIED
+              //&&  fanIsRunning
+              //&&  !uvLedState
+            )
+          {
+            uvLedState = true;
+            //Debug.print(DBG_DEBUG, F("[D] * UV LEDs are ON") );
+          }
+          else
+          {
+            uvLedState = false;
+          }
+
+        // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
+          if(     !fanIsRunning
+              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+            )
+          {
+            uvLedState = false;
+
+            // GOTO ERROR STATE...
+            sessionExitCondition = EXIT_SES_FAN_ERROR;
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_SYS_INIT_ERROR);
+              goToFsmStateNext();
+          }
+        // END uvLedState Safety Check
+
+        // Watch for motion ...
+          if(pirOutputPinState)                         // if motion is detected ...
+          {
+            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
+
+            audioPlayer.stopPlaying();                  // stop countdown audio
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_INIT_OCCUPIED);   // return to OCCUPIED state
+              goToFsmStateNext();
+          }
+
+        // Decide if we can go to next state ...
+          if(     audioPlayer.stopped()                 // countdown audio is finished
+              &&  ((millis() - stageStartTimestamp_ms) >= COUNTDOWN_TIME_MS)   // min countdown time has elapsed
+            )
+          {
+            Debug.print(DBG_DEBUG, F("[D] * Countdown complete") );
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_EXIT_COUNTDOWN);
+              goToFsmStateNext();
+          }
+
+      } // END -- FSM_STG_RUN_COUNTDOWN
+      break;
+
+
+      //----------------------------------------------------------------------------
+      case FSM_STG_EXIT_COUNTDOWN:
+      //----------------------------------------------------------------------------
+      {
+        Debug.print(DBG_DEBUG, F("[D] * stage runtime: %s ms"), getFormattedMillisString(millis()-stageStartTimestamp_ms) );
+
+        stageStartTimestamp_ms = 0;     // reset timestamp
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
           setFsmStateNext(FSM_STG_INIT_UNOCCUPIED);
           goToFsmStateNext();
 
-      } // END -- FSM_STG_COUNTDOWN
+      } // END -- FSM_STG_EXIT_COUNTDOWN
       break;
-
-
 
 
       //----------------------------------------------------------------------------
@@ -2406,8 +2553,17 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
+        audioPlayer.startPlayingFile("/begin001.mp3");  // Play UNOCCUPIED notification
 
-        // App Code for stage initialization here...
+        fanState = true;
+        fanSpeedPwm = FAN_PWM_MAX;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t HIGH") );
+
+        shutterDesiredState = OPEN;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t OPEN") );
+
+        // uvLedState NOT monitored in RUN bc can be left ON when UNOCCUPIED
+        Debug.print(DBG_DEBUG, F("[D] * UV LED:\t ON") );
 
 
         // Set up transition to next fsmState
@@ -2424,12 +2580,47 @@
       //----------------------------------------------------------------------------
       {
 
-        // App Code for stage tasks here...
+        // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
+          if(     !fanIsRunning
+              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+            )
+          {
+            uvLedState = false;
 
-        // Set up transition to next fsmState
-        //----------------------------------------------------------------------------
-          setFsmStateNext(FSM_STG_EXIT_UNOCCUPIED);
-          goToFsmStateNext();
+            // GOTO ERROR STATE...
+            sessionExitCondition = EXIT_SES_FAN_ERROR;
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_SYS_INIT_ERROR);
+              goToFsmStateNext();
+          }
+        // END uvLedState Safety Check
+
+        // Watch for motion ...
+          if(pirOutputPinState)                         // if motion is detected ...
+          {
+            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
+
+            audioPlayer.stopPlaying();                  // stop audio
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_INIT_OCCUPIED);   // return to OCCUPIED state
+              goToFsmStateNext();
+          }
+
+        // Decide if we can go to next state ...
+          if(  ((millis() - stageStartTimestamp_ms) >= UNOCCUPIED_TIMEOUT_MS)   // max duration has elapsed
+            )
+          {
+            Debug.print(DBG_DEBUG, F("[D] * UNOCCUPIED duration timeout") );
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_EXIT_UNOCCUPIED);
+              goToFsmStateNext();
+          }
 
       } // END -- FSM_STG_RUN_UNOCCUPIED
       break;
@@ -2460,9 +2651,17 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
+        audioPlayer.startPlayingFile("/alert003.mp3");  // Play alert Sound
 
-        // App Code for stage initialization here...
+        fanState = true;
+        fanSpeedPwm = FAN_PWM_MAX;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t HIGH for %d s"), (FAN_UV_LED_COOLDOWN_TIME_MS/1000) );
 
+        shutterDesiredState = CLOSED;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t CLOSED") );
+
+        uvLedState = false;
+        Debug.print(DBG_DEBUG, F("[D] * UV LED:\t OFF") );
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
@@ -2478,12 +2677,44 @@
       //----------------------------------------------------------------------------
       {
 
-        // App Code for stage tasks here...
+        // Watch for motion ...
+          if(pirOutputPinState)                         // if motion is detected ...
+          {
+            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
-        // Set up transition to next fsmState
-        //----------------------------------------------------------------------------
-          setFsmStateNext(FSM_STG_EXIT_DORMANT);
-          goToFsmStateNext();
+            audioPlayer.stopPlaying();                  // stop countdown audio
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_INIT_OCCUPIED);   // return to OCCUPIED state
+              goToFsmStateNext();
+          }
+
+        // Keep fan running to cool off UV LEDs for a bit
+          if(  ((millis() - stageStartTimestamp_ms) <= FAN_UV_LED_COOLDOWN_TIME_MS)
+            )
+          {
+            fanState = true;
+          }
+          else if (fanState)        // run once after duration has expired
+          {
+            fanState = false;       // turn fan OFF when duration has expired
+
+            Debug.print(DBG_DEBUG, F("[D] * Fan cooldown complete") );
+          }
+
+
+        // Decide if we can go to next state ...
+          if(  ((millis() - stageStartTimestamp_ms) >= DORMANT_TIMEOUT_MS)   // max duration has elapsed
+            )
+          {
+            Debug.print(DBG_DEBUG, F("[D] * DORMANT duration timeout") );
+
+            // Set up transition to next fsmState
+            //----------------------------------------------------------------------------
+              setFsmStateNext(FSM_STG_EXIT_DORMANT);
+              goToFsmStateNext();
+          }
 
       } // END -- FSM_STG_RUN_DORMANT
       break;
@@ -2504,9 +2735,6 @@
 
       } // END -- FSM_STG_EXIT_DORMANT
       break;
-
-
-
 
 
       //----------------------------------------------------------------------------
@@ -2659,6 +2887,19 @@
       {
         sysLed.blink(LED_ERROR);       // set led scene
         //EasyBuzzer.beep(BEEP_ERROR);  // set attention buzzer beep
+
+        audioPlayer.startPlayingFile("/alert004.mp3");  // Play alert Sound
+
+        fanState = false;
+        Debug.print(DBG_DEBUG, F("[D] * Fan:\t OFF") );
+
+        shutterDesiredState = RELEASED;
+        Debug.print(DBG_DEBUG, F("[D] * Shutter:\t RELEASED") );
+
+        uvLedState = false;
+        Debug.print(DBG_DEBUG, F("[D] * UV LED:\t OFF") );
+
+        Serial.println();
 
         Debug.print(DBG_ERROR,    F("[E] * ERROR from %s: %s"), getProgMemString(fsmStateString[fsmStatePrior]), getProgMemString(exitConditionString[sessionExitCondition]));
         Debug.print(DBG_ERROR,    F("[E]   * Push button to continue...\n\r"));
