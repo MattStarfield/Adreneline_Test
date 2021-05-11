@@ -1656,17 +1656,22 @@
 
         // Update PIR Motion Sensor Reading
         //----------------------------------------------------------------------------
-          pirOutputPinState = digitalRead(PIN_PIR_SENSOR);
+          //pirOutputPinState = digitalRead(PIN_PIR_SENSOR);
 
-          if(pirIsStabilized)
+          if(pirIsStabilized)                     // make sure PIR Stabilization is complete
           {
-            if(pirOutputPinState)
+            if(digitalRead(PIN_PIR_SENSOR))       // if PIR sensor pin is HIGH
             {
-              uiLed.on();
+              pirOutputPinState = true;           // set pir flag
+              pirMotionTimestamp_ms = millis();   // update timestamp (used to eliminate hysterisis)
+
+              uiLed.on();                         // set motion indicator LED (updtes in Output Actuators section)
+
             }
-            else
+            else if ((millis() - pirMotionTimestamp_ms) >= PIR_RESET_TIME_MS) // prevent PIR LED from flickering while sensor settles
             {
-              uiLed.off();
+              pirOutputPinState = false;          // turn off pir sensor flag
+              uiLed.off();                        // turn off indicator LED
             }
           }
 
@@ -1745,7 +1750,7 @@
             fanTachCountPrior = fanTachCountNow;    // equate counters for next check
 
             fanIsRunning = true;
-            fanRunningTimestamp_ms = millis();      // refresh timestamp 
+            fanRunningTimestamp_ms = millis();      // refresh timestamp
           }
           else                                          // fan is not running
           {
@@ -1903,13 +1908,13 @@
             //  * debug print statements suppressed
             {
               // Set debugLevel
-                debugLevel = DBG_NONE;            // Turn debug print statements OFF in NORMAL_MODE
+                //debugLevel = DBG_NONE;            // Turn debug print statements OFF in NORMAL_MODE
+                debugLevel = DBG_VERBOSE;
 
               // Set LED & Buzzer Scenes
                 sysLed.blink(LED_HEARTBEAT);       // set led scene
                 //EasyBuzzer.beep(BEEP_OK);          // set buzzer beep
 
-                //audioPlayer.startPlayingFile("/startup1.mp3");
 
               // Set up fsmState
               //----------------------------------------------------------------------------
@@ -1963,7 +1968,6 @@
                 sysLed.blink(LED_ATTENTION);       // set attention led scene
                 //EasyBuzzer.beep(BEEP_ATTENTION);  // set attention buzzer beep
 
-                //audioPlayer.startPlayingFile("/startup1.mp3");
 
               // Set up fsmState
               //----------------------------------------------------------------------------
@@ -2170,9 +2174,9 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(STARTUP_AUDIO);  // Play Start Up Sound
 
-        audioPlayer.startPlayingFile("/startup1.mp3");  // Play Start Up Sound
-        //audioPlayer.playFullFile("/startup1.mp3");  // Play Start Up Sound
 
         uiLed.blink(LED_STABILIZING);   // set led scene to show PIR needs to stabilize
 
@@ -2218,7 +2222,9 @@
 
             // Check to refresh Wait Message and tick marks
             //----------------------------------------------------------------------------
-              if ( (currentMillis_ms - waitStateRefreshTimestamp_ms) >= WAIT_MESSAGE_REFRESH_INTERVAL_MS  ) // duration since timestamp is greater than interval
+              if (    ((currentMillis_ms - waitStateRefreshTimestamp_ms) >= WAIT_MESSAGE_REFRESH_INTERVAL_MS  ) // duration since timestamp is greater than interval
+                  &&  (debugLevel >= DBG_INFO)
+                )
               {
                 waitStateRefreshTimestamp_ms = currentMillis_ms;           // reset timestamp
 
@@ -2338,7 +2344,8 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
-        audioPlayer.startPlayingFile("/alert001.mp3");  // Play Alert Sound
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(OCCUPIED_NOTIFICATION_AUDIO);  // Play Alert Sound
 
         pirMotionTimestamp_ms = millis();   // Start PIR Motion timer
 
@@ -2367,7 +2374,7 @@
       {
         // Safety: Monitor shutterCurrentState allow UV LEDs to be ON ...
           if(     (shutterCurrentState == shutterDesiredState)    // shutterDesiredState set in FSM_STG_INIT_OCCUPIED
-              //&&  fanIsRunning
+              &&  fanIsRunning
               //&&  !uvLedState
             )
           {
@@ -2381,7 +2388,7 @@
 
         // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
           if(     !fanIsRunning
-              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+              &&  ((millis() - stageStartTimestamp_ms) >= FAN_TIMEOUT_MS)   // give the fan some time to spin up
             )
           {
             uvLedState = false;
@@ -2397,13 +2404,14 @@
         // END uvLedState Safety Check
 
         // Monitor PIR Motion Timer
-          if(pirOutputPinState)                 // when motion is detected ...
-          {
-            pirMotionTimestamp_ms = millis();   // reset PIR timer
-          }
+          //if(pirOutputPinState)                 // when motion is detected ...
+          //{
+          //  pirMotionTimestamp_ms = millis();   // reset PIR timer
+          //}
 
         // Decide if we can leave this state due to No Motion Timeout ...
-          if( (millis() - pirMotionTimestamp_ms) >= PIR_NO_MOTION_TIMEOUT_MS)
+        // pirMotionTimestamp_ms updated in Handle Polled Inputs section
+          if( (millis() - pirMotionTimestamp_ms) >= (OCCUPIED_NO_MOTION_TIMEOUT_SEC * 1000))
           {
             // Set up transition to next fsmState
             //----------------------------------------------------------------------------
@@ -2442,7 +2450,8 @@
 
         //countdownTimestamp_ms = millis();   // Start countdown timer
 
-        audioPlayer.startPlayingFile("/countdwn.mp3");  // Start playing Countdown audio
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(COUNTDOWN_AUDIO);  // Start playing Countdown audio
 
         fanState = true;
         fanSpeedPwm = FAN_PWM_MIN;
@@ -2484,7 +2493,7 @@
 
         // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
           if(     !fanIsRunning
-              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+              &&  ((millis() - stageStartTimestamp_ms) >= FAN_TIMEOUT_MS)   // give the fan some time to spin up
             )
           {
             uvLedState = false;
@@ -2514,7 +2523,7 @@
 
         // Decide if we can go to next state ...
           if(     audioPlayer.stopped()                 // countdown audio is finished
-              &&  ((millis() - stageStartTimestamp_ms) >= COUNTDOWN_TIME_MS)   // min countdown time has elapsed
+              &&  ((millis() - stageStartTimestamp_ms) >= (COUNTDOWN_TIME_SEC * 1000))   // min countdown time has elapsed
             )
           {
             Debug.print(DBG_DEBUG, F("[D] * Countdown complete") );
@@ -2553,7 +2562,8 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
-        audioPlayer.startPlayingFile("/begin001.mp3");  // Play UNOCCUPIED notification
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(UNOCCUPIED_NOTIFICATION_AUDIO);  // Play UNOCCUPIED notification
 
         fanState = true;
         fanSpeedPwm = FAN_PWM_MAX;
@@ -2582,7 +2592,7 @@
 
         // Safety: Monitor fanIsRunning allow UV LEDs to be ON ...
           if(     !fanIsRunning
-              &&  ((millis() - fanRunningTimestamp_ms) >= FAN_TIMEOUT_MS)
+              &&  ((millis() - stageStartTimestamp_ms) >= FAN_TIMEOUT_MS)   // give the fan some time to spin up
             )
           {
             uvLedState = false;
@@ -2611,7 +2621,7 @@
           }
 
         // Decide if we can go to next state ...
-          if(  ((millis() - stageStartTimestamp_ms) >= UNOCCUPIED_TIMEOUT_MS)   // max duration has elapsed
+          if(  ((millis() - stageStartTimestamp_ms) >= (UNOCCUPIED_TIMEOUT_SEC * 1000))   // max duration has elapsed
             )
           {
             Debug.print(DBG_DEBUG, F("[D] * UNOCCUPIED duration timeout") );
@@ -2651,7 +2661,8 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
-        audioPlayer.startPlayingFile("/alert003.mp3");  // Play alert Sound
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(DORMANT_NOTIFICATION_AUDIO);  // Play alert Sound
 
         fanState = true;
         fanSpeedPwm = FAN_PWM_MAX;
@@ -2705,7 +2716,7 @@
 
 
         // Decide if we can go to next state ...
-          if(  ((millis() - stageStartTimestamp_ms) >= DORMANT_TIMEOUT_MS)   // max duration has elapsed
+          if(  ((millis() - stageStartTimestamp_ms) >= (DORMANT_TIMEOUT_SEC * 1000))   // max duration has elapsed
             )
           {
             Debug.print(DBG_DEBUG, F("[D] * DORMANT duration timeout") );
@@ -2888,7 +2899,8 @@
         sysLed.blink(LED_ERROR);       // set led scene
         //EasyBuzzer.beep(BEEP_ERROR);  // set attention buzzer beep
 
-        audioPlayer.startPlayingFile("/alert004.mp3");  // Play alert Sound
+        audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.startPlayingFile(ERROR_NOTIFICATION_AUDIO);  // Play alert Sound
 
         fanState = false;
         Debug.print(DBG_DEBUG, F("[D] * Fan:\t OFF") );

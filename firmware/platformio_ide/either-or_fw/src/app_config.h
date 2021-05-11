@@ -16,7 +16,6 @@
 #define APP_CONFIG_H
 #include "Arduino.h"                    // includes all AVR & Arduino-specific definfitions (case sensitive file name on Linux)
 
-
 //==============================================================================
 // == App Info == //
 //==============================================================================
@@ -27,6 +26,18 @@
 //==============================================================================
 // == App Settings == //
 //==============================================================================
+
+  #define OCCUPIED_NO_MOTION_TIMEOUT_SEC     10 //600  //sec, duration of "no motion" for room to be considered UNOCCUPIED
+  #define COUNTDOWN_TIME_SEC                 10   //sec, minimum countdown time before switcing to UNOCCUPIED
+  #define UNOCCUPIED_TIMEOUT_SEC             20 //600  //sec, max duration in UNOCCUPIED before moving to DORMANT
+  #define DORMANT_TIMEOUT_SEC                20 //36000  //sec, max duration in DORMANT state before switching back to OCCUPIED
+
+  #define STARTUP_AUDIO                       "/startup1.mp3"
+  #define OCCUPIED_NOTIFICATION_AUDIO         "/alert001.mp3"
+  #define COUNTDOWN_AUDIO                     "/countdwn.mp3"
+  #define UNOCCUPIED_NOTIFICATION_AUDIO       "/begin001.mp3"
+  #define DORMANT_NOTIFICATION_AUDIO          "/alert003.mp3"
+  #define ERROR_NOTIFICATION_AUDIO            "/alert004.mp3"
 
   // Device Operating Mode
   //----------------------------------------------------------------------------
@@ -62,22 +73,22 @@
 
   // Session Settings
   //----------------------------------------------------------------------------
-  #define SESSION_COUNTDOWN_TIME            5     // seconds
-  #define SESSION_REPEATS_NUM_OF_OPTIONS    2     // number of options in sessionRepeatsList[]
+    //#define SESSION_COUNTDOWN_TIME            5     // seconds
+    #define SESSION_REPEATS_NUM_OF_OPTIONS    2     // number of options in sessionRepeatsList[]
 
   // Watchdog Timer Settings
   //----------------------------------------------------------------------------
-  #define WATCHDOG_TIMER_MS                 2000 // (ms), watchdog will reboot system if it hangs for this long
+    #define WATCHDOG_TIMER_MS                 2000 // (ms), watchdog will reboot system if it hangs for this long
 
-  #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
+    #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
 
-  #define LOOP_TIME_NUM_SAMPLES             10
+    #define LOOP_TIME_NUM_SAMPLES             10
 
-  #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
-  #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
+    #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
+    #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
 
-  #define CLI_INPUT_DESIGNATOR              "\n\r<< "
-  #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
+    #define CLI_INPUT_DESIGNATOR              "\n\r<< "
+    #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
 
   // LED & Pixel PWM Brightness values
   //----------------------------------------------------------------------------
@@ -188,12 +199,8 @@
   // Sensor Settings
   //----------------------------------------------------------------------------
     #define PIR_STABILIZATION_TIME_MS         30000   // ms, time required for PIR sensor to stabilize after power up
-    #define PIR_RESET_TIME_MS                 6000    // ms, time required for PIR to be ready after motion is no longer detected
+    #define PIR_RESET_TIME_MS                 500    // ms, time required for PIR to be ready after motion is no longer detected
 
-    #define PIR_NO_MOTION_TIMEOUT_MS          10000 //600000  //ms, duration of "no motion" for room to be considered UNOCCUPIED
-    #define COUNTDOWN_TIME_MS                 10000   //ms, minimum countdown time before switcing to UNOCCUPIED
-    #define UNOCCUPIED_TIMEOUT_MS             20000 //600000  //ms, max duration in UNOCCUPIED before moving to DORMANT
-    #define DORMANT_TIMEOUT_MS                20000 //36000000  //ms, max duration in DORMANT state before switching back to OCCUPIED
 
   // Actuator Settings
   //----------------------------------------------------------------------------
@@ -201,7 +208,7 @@
     #define FAN_PWM_DEFAULT                   100  // (0 - 255) default PWM duty cycle
     #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
     #define FAN_PWM_MIN                       52   // (0 - 255) Min PWM duty cycle allowed in software
-    #define FAN_TIMEOUT_MS                    2000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
+    #define FAN_TIMEOUT_MS                    5000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
     #define FAN_CHECK_INTERVAL_MS             1000  // period to wait between checking if fan is running
 
     #define FAN_UV_LED_COOLDOWN_TIME_MS       5000 // ms, time for fan to continue running after UV LEDs are OFF
