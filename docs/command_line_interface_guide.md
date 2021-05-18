@@ -19,6 +19,60 @@ cmd -argument1 value1 -argument2 value2 ...
 
 ### Commands
 
+#### `> set`
+Set one or more variable values
+* **Examples**:
+  * `>` `set -occupied 10 -unoccupied 20 -dormant 20`
+  * `>` `s -o 10 -u 20 -d 20`
+<br><br>
+* **Name(s)**: `set`, `s`
+* **Arguments & Values**:
+  <!--  
+    * `-deviceMode`, `-device`, `-dev`
+      * `n`: NORMAL_MODE
+      * `f`: FIRST_RUN_MODE
+      * `s`: SETUP_MODE
+      * `d`: DEVELOPMENT_MODE
+      * `t`: TEST_MODE
+      * `b`: BURN_IN_MODE
+    * `-fsmStateNow`, `-fsmState`, `-fsm`
+      * `di`: FSM_SYS_INIT_DEV
+      * `w` : FSM_SYS_WAIT
+      * `ai`: FSM_SYS_INIT_APP
+      * `si`: FSM_SES_INIT
+      * `s1`: FSM_STG_INIT_STAGE1
+      * `a` : FSM_SYS_INIT_ALERT
+      * `e` : FSM_SYS_INIT_ERROR
+    * `-uiButton`, `-uiBtn`, `btn`
+      * `press`, `1`: button pressed
+      * `hold`, `2`: button held
+      -->
+    * `-fanState`, `-fan`
+      * `0`: Off
+      * `1`: On<br><br>
+    * `-fanSpeedPwm`, `-fanSpeed`, `-pwm`
+      * `0` to `255`: PWM value<br><br>
+    * `-uvLedState`, `-uv`
+      * `0`: Off
+      * `1`: On<br><br>
+    * `-shutterDesiredState`, `-shutter`, `-s`
+      * `c` or `1`: CLOSED
+      * `o` or `2`: OPEN
+      * `r` or `3`: RELEASED<br><br>
+    * `-occupiedTimeout`, `-occupied`, `-o`
+      * `0` to `2147483647`: timeout value in seconds<br><br>
+    * `-unoccupiedTimeout`, `-unoccupied`, `-u`
+      * `0` to `2147483647`: timeout value in seconds<br><br>
+    * `-dormantTimeout`, `-dormant`, `-d`
+      * `0` to `2147483647`: timeout value in seconds<br><br>
+    * `-debugLevel`, `-debug`, `-dbg`
+        * `n`: DBG_NONE
+        * `e`: DBG_ERROR
+        * `w`: DBG_WARNING
+        * `i`: DBG_INFO
+        * `d`: DBG_DEBUG
+        * `v`: DBG_VERBOSE
+
 <!--
 #### `> pressure`
 Transmit a pressure reading, change the pressure units, or zero-out the current pressure
@@ -51,48 +105,6 @@ Print list of available commands
 * **Name(s)**: `help`, `h`
 * **Arguments & Values**:
   * None
-
-
-
-#### `> set`
-Set one or more variable values
-* **Examples**:
-  * `>` `set -debugLevel v -deviceMode n -fsmStateNow di -uiButton 1`
-  * `>` `s -dbg v -dev n -fsm di -btn 1`
-<br><br>
-* **Name(s)**: `set`, `s`
-* **Arguments & Values**:
-  * `-debugLevel`, `-debug`, `-dbg`
-    * `n`: DBG_NONE
-    * `e`: DBG_ERROR
-    * `w`: DBG_WARNING
-    * `i`: DBG_INFO
-    * `d`: DBG_DEBUG
-    * `v`: DBG_VERBOSE
-  * `-deviceMode`, `-device`, `-dev`
-    * `n`: NORMAL_MODE
-    * `f`: FIRST_RUN_MODE
-    * `s`: SETUP_MODE
-    * `d`: DEVELOPMENT_MODE
-    * `t`: TEST_MODE
-    * `b`: BURN_IN_MODE
-  * `-fsmStateNow`, `-fsmState`, `-fsm`
-    * `di`: FSM_SYS_INIT_DEV
-    * `w` : FSM_SYS_WAIT
-    * `ai`: FSM_SYS_INIT_APP
-    * `si`: FSM_SES_INIT
-    * `s1`: FSM_STG_INIT_STAGE1
-    * `a` : FSM_SYS_INIT_ALERT
-    * `e` : FSM_SYS_INIT_ERROR
-  * `-uiButton`, `-uiBtn`, `btn`
-    * `press`, `1`: button pressed
-    * `hold`, `2`: button held
-<!--  * `-fanState`, `-fan`
-    * `0`: Off
-    * `1`: On
-  * `-fanSpeedPwm`, `-fanSpeed`, `-pwm`
-    * `0` to `255`: PWM value
--->  
 
 ---
 ## Serial Terminal Setup

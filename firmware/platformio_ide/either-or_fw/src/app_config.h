@@ -27,10 +27,11 @@
 // == App Settings == //
 //==============================================================================
 
-  #define OCCUPIED_NO_MOTION_TIMEOUT_SEC     10 //600  //sec, duration of "no motion" for room to be considered UNOCCUPIED
+  #define OCCUPIED_NO_MOTION_TIMEOUT_SEC     600  //sec, duration of "no motion" for room to be considered UNOCCUPIED
+  #define UNOCCUPIED_TIMEOUT_SEC             600  //sec, max duration in UNOCCUPIED before moving to DORMANT
+  #define DORMANT_TIMEOUT_SEC                36000  //sec, max duration in DORMANT state before switching back to OCCUPIED
+
   #define COUNTDOWN_TIME_SEC                 10   //sec, minimum countdown time before switcing to UNOCCUPIED
-  #define UNOCCUPIED_TIMEOUT_SEC             20 //600  //sec, max duration in UNOCCUPIED before moving to DORMANT
-  #define DORMANT_TIMEOUT_SEC                20 //36000  //sec, max duration in DORMANT state before switching back to OCCUPIED
 
   #define STARTUP_AUDIO                       "/startup1.mp3"
   #define OCCUPIED_NOTIFICATION_AUDIO         "/alert001.mp3"
@@ -38,6 +39,7 @@
   #define UNOCCUPIED_NOTIFICATION_AUDIO       "/begin001.mp3"
   #define DORMANT_NOTIFICATION_AUDIO          "/alert003.mp3"
   #define ERROR_NOTIFICATION_AUDIO            "/alert004.mp3"
+  #define COMMAND_RECEIVED_AUDIO              "/alert005.mp3"
 
   // Device Operating Mode
   //----------------------------------------------------------------------------
@@ -133,7 +135,7 @@
     #define PIN_SPI_VS1053_CS                  6  // MusicMaker MP3-CS; PWM  //
     #define PIN_SPI_SD_CS                      5  // MusicMaker SD-CS; PWM  //
 
-    //#define PIN_                             1  // TX1; PWM//
+    #define PIN_TX                             1  // TX1; PWM//
     //#define PIN_                             0  // RX0 (avoid use) //
 
     // Special Pin Defines for Feather M0 Express

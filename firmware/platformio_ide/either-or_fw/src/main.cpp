@@ -230,6 +230,9 @@
 
     bool uvLedState = false;
 
+    uint32_t occupiedTimeout_sec = 0;
+    uint32_t unoccupiedTimeout_sec = 0;
+    uint32_t dormantTimeout_sec = 0;
 
     bool limitSwitch1State = HIGH;    // assume limit switch is "open"
     bool limitSwitch2State = HIGH;    // assume limit switch is "open"
@@ -398,6 +401,9 @@
   void cliSet_cb(cmd* cmdPtr)
   {
     //EasyBuzzer.beep(BEEP_CHIRP);    // audible inidicator that command has run
+
+    audioPlayer.stopPlaying();                      // stop any prior audio
+    audioPlayer.startPlayingFile(COMMAND_RECEIVED_AUDIO);  // Play Start Up Sound
 
     // string to indicate that what follows is output from CLI
     // useful for parsing output stream to PC / GUI program
@@ -681,7 +687,7 @@
 
         Serial.print(F("[fanState: "));
         Serial.print(fanState);
-        Serial.print(F("] "));
+        Serial.println(F("] "));
       }
     // END -- fanState Arugment
 
@@ -697,14 +703,11 @@
         // Handle input value
         int tempValue = inputStr.toInt();           // convert to expected data type
 
-        Serial.print(F("[fanSpeedPwm: "));
-
         if(    (tempValue >= 0)
             && (tempValue <= 255)
           )
           {
             fanSpeedPwm = tempValue;
-            Serial.print(fanSpeedPwm);
           }
         else
           {
@@ -713,9 +716,153 @@
             Serial.println(invalidStr);
           }
 
-          Serial.print(F("] "));
+          Serial.print(F("[fanSpeedPwm: "));
+          Serial.print(fanSpeedPwm);
+          Serial.println(F("] "));
       }
     // END -- // fanSpeedPwm Argument
+
+
+    // uvLedState Argument
+      inputArg = inputCmd.getArgument("uvLedState");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      // If no value entered ("default"), make no change
+      if(inputStr != defaultStr)
+      {
+        //Handle input value
+        //----------------------------------------------------------------------------
+        uvLedState = (bool) inputStr.toInt();           // convert to expected data type
+
+        Serial.print(F("[uvLedState: "));
+        Serial.print(uvLedState);
+        Serial.println(F("] "));
+      }
+    // END -- uvLedState Arugment
+
+
+    // shutterDesiredState Argument
+      inputArg = inputCmd.getArgument("shutterDesiredState");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      // If no value entered ("default"), make no change
+      if(inputStr != defaultStr)
+      {
+        // Handle input value
+        //----------------------------------------------------------------------------
+        if(          (inputStr == F("c"))
+                  || (inputStr == F("1"))
+          )
+          {
+            shutterDesiredState = CLOSED;
+          }
+        else if(     (inputStr == F("o"))
+                  || (inputStr == F("2"))
+          )
+          {
+            shutterDesiredState = OPEN;
+          }
+        else if(     (inputStr == F("r"))
+                  || (inputStr == F("3"))
+          )
+          {
+            shutterDesiredState = RELEASED;
+          }
+        else
+          {
+            Serial.println(invalidStr);
+          }
+
+          Serial.print(F("[shutterDesiredState: "));
+          Serial.print(getProgMemString(shutterStateString[shutterDesiredState]));
+          Serial.println(F("]"));
+
+      }
+    // END -- shutterDesiredState Argument
+
+
+
+    // occupiedTimeout Argument
+      inputArg = inputCmd.getArgument("occupiedTimeout");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      if(inputStr != defaultStr)
+      {
+        // Handle input value
+        int tempValue = inputStr.toInt();           // convert to expected data type
+
+
+        if(    (tempValue >= 0)                     // timeout value must be non-negative
+            && (tempValue <= 2147483647)           // int max
+          )
+          {
+            occupiedTimeout_sec = tempValue;
+          }
+        else
+          {
+            Serial.println(invalidStr);
+          }
+
+          Serial.print(F("[occupiedTimeout: "));
+          Serial.print(occupiedTimeout_sec);
+          Serial.println(F(" sec] "));
+      }
+    // END -- // occupiedTimeout Argument
+
+
+    // unoccupiedTimeout Argument
+      inputArg = inputCmd.getArgument("unoccupiedTimeout");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      if(inputStr != defaultStr)
+      {
+        // Handle input value
+        int tempValue = inputStr.toInt();           // convert to expected data type
+
+
+        if(     (tempValue >= 0)                     // timeout value must be non-negative
+            && (tempValue <= 2147483647)            // int max
+          )
+          {
+            unoccupiedTimeout_sec = tempValue;
+          }
+        else
+          {
+            Serial.println(invalidStr);
+          }
+
+          Serial.print(F("[unoccupiedTimeout: "));
+          Serial.print(unoccupiedTimeout_sec);
+          Serial.println(F(" sec] "));
+      }
+    // END -- // unoccupiedTimeout Argument
+
+
+    // dormantTimeout Argument
+      inputArg = inputCmd.getArgument("dormantTimeout");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      if(inputStr != defaultStr)
+      {
+        // Handle input value
+        int tempValue = inputStr.toInt();           // convert to expected data type
+
+        if(    (tempValue >= 0)                     // timeout value must be non-negative
+            && (tempValue <= 2147483647)          // int max
+          )
+          {
+            dormantTimeout_sec = tempValue;
+          }
+        else
+          {
+            Serial.println(invalidStr);
+          }
+
+          Serial.print(F("[dormantTimeout: "));
+          Serial.print(dormantTimeout_sec);
+          Serial.println(F(" sec] "));
+      }
+    // END -- // dormantTimeout Argument
 
 
   } // END -- cliSet_cb()
@@ -1407,6 +1554,7 @@
       //SPI_VS1053_CS                           //  6
       //SPI_SD_CS                               //  5
 
+      pinMode(PIN_TX, INPUT_PULLUP);            //  1 // pull up to prevent known bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
 
     // Initialize Output Pins
     //----------------------------------------------------------------------------
@@ -1514,17 +1662,27 @@
 
         // HELP: display "help" info to user
         cmdHelp = cli.addCommand("h/elp", cliHelp_cb);
-        //cmdHelp.setDescription("* Show command list");
+        cmdHelp.setDescription("* Show command list");
 
         // SET: master cmd to set app variables
         cmdSet = cli.addCommand("s/et", cliSet_cb);   // ("cmdName, cmdNameAlias", cmdCallbackFunction); cmdName should be alpha-numeric chars ONLY
-        //cmdSet.setDescription("* Set variable values");
+        cmdSet.setDescription("* Set variable values");
         cmdSet.addPositionalArgument("debug/Level,dbg", "default");     // ("argName, argAlias", "defaultValue");
-        cmdSet.addPositionalArgument("device/Mode,dev", "default");     // ("argName, argAlias", "defaultValue");
-        cmdSet.addPositionalArgument("fsm/State/Now", "default");     // ("argName, argAlias", "defaultValue");
+        //cmdSet.addPositionalArgument("device/Mode,dev", "default");     // ("argName, argAlias", "defaultValue");
+        //cmdSet.addPositionalArgument("fsm/State/Now", "default");     // ("argName, argAlias", "defaultValue");
         cmdSet.addPositionalArgument("uiButton,uiBtn,btn", "default");     // ("argName, argAlias", "defaultValue");
-        //cmdSet.addPositionalArgument("fan/State", "default");     // ("argName, argAlias", "defaultValue");
-        //cmdSet.addPositionalArgument("fanSpeedPwm,fanPwm,pwm", "default");     // ("argName, argAlias", "defaultValue");
+
+        cmdSet.addPositionalArgument("fan/State", "default");               // ("argName, argAlias", "defaultValue");
+        cmdSet.addPositionalArgument("fanSpeedPwm,fanPwm,pwm", "default");     // ("argName, argAlias", "defaultValue");
+
+        cmdSet.addPositionalArgument("uv/Led/State", "default");
+
+        cmdSet.addPositionalArgument("s/hutter/Desired/State", "default");
+
+        cmdSet.addPositionalArgument("o/ccupied/Timeout", "default");
+        cmdSet.addPositionalArgument("u/noccupied/Timeout", "default");
+        cmdSet.addPositionalArgument("d/ormant/Timeout", "default");
+
 
         // PRESSURE: output pressure sensor reading
         //cmdPressure = cli.addCommand("p/ress/ure", cliPressure_cb);   // ("cmdName, cmdNameAlias", cmdCallbackFunction); cmdName should be alpha-numeric chars ONLY
@@ -1857,9 +2015,11 @@
 
             audioPlayer.stopPlaying();
 
-            shutterDesiredState = RELEASED;
+            shutterDesiredState   = RELEASED;
 
-
+            occupiedTimeout_sec   = OCCUPIED_NO_MOTION_TIMEOUT_SEC;
+            unoccupiedTimeout_sec = UNOCCUPIED_TIMEOUT_SEC;
+            dormantTimeout_sec    = DORMANT_TIMEOUT_SEC;
 
 
         //=========================================================================//
@@ -2411,7 +2571,7 @@
 
         // Decide if we can leave this state due to No Motion Timeout ...
         // pirMotionTimestamp_ms updated in Handle Polled Inputs section
-          if( (millis() - pirMotionTimestamp_ms) >= (OCCUPIED_NO_MOTION_TIMEOUT_SEC * 1000))
+          if( (millis() - pirMotionTimestamp_ms) >= (occupiedTimeout_sec * 1000))
           {
             // Set up transition to next fsmState
             //----------------------------------------------------------------------------
@@ -2621,7 +2781,7 @@
           }
 
         // Decide if we can go to next state ...
-          if(  ((millis() - stageStartTimestamp_ms) >= (UNOCCUPIED_TIMEOUT_SEC * 1000))   // max duration has elapsed
+          if(  ((millis() - stageStartTimestamp_ms) >= (unoccupiedTimeout_sec * 1000))   // max duration has elapsed
             )
           {
             Debug.print(DBG_DEBUG, F("[D] * UNOCCUPIED duration timeout") );
@@ -2716,7 +2876,7 @@
 
 
         // Decide if we can go to next state ...
-          if(  ((millis() - stageStartTimestamp_ms) >= (DORMANT_TIMEOUT_SEC * 1000))   // max duration has elapsed
+          if(  ((millis() - stageStartTimestamp_ms) >= (dormantTimeout_sec * 1000))   // max duration has elapsed
             )
           {
             Debug.print(DBG_DEBUG, F("[D] * DORMANT duration timeout") );
