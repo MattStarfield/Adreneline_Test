@@ -26,6 +26,8 @@ void setup() {
   // if you're using Bluefruit or LoRa/RFM Feather, disable the radio module
   //pinMode(8, INPUT_PULLUP);
 
+  pinMode(1, INPUT_PULLUP);   // pull up to prevent known bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
+
   // Wait for serial port to be opened, remove this line for 'standalone' operation
   while (!Serial) { delay(1); }
   delay(500);
@@ -38,7 +40,7 @@ void setup() {
 
   Serial.println(F("VS1053 found"));
  
-  //audioPlayer.sineTest(0x44, 500);    // Make a tone to indicate VS1053 is working
+  audioPlayer.sineTest(0x44, 500);    // Make a tone to indicate VS1053 is working
   
   if (!SD.begin(PIN_SPI_SD_CS)) {
     Serial.println(F("SD failed, or not present"));
