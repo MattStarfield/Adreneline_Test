@@ -33,6 +33,8 @@
 
   #define COUNTDOWN_TIME_SEC                 10   //sec, minimum countdown time before switcing to UNOCCUPIED
 
+  #define AUDIO_VOLUME                       0    // 0 - 255, lower number == louder volume
+
   #define STARTUP_AUDIO                       "/startup1.mp3"
   #define OCCUPIED_NOTIFICATION_AUDIO         "/alert001.mp3"
   #define COUNTDOWN_AUDIO                     "/countdwn.mp3"

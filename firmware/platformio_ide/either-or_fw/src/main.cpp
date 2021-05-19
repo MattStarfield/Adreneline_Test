@@ -403,6 +403,7 @@
     //EasyBuzzer.beep(BEEP_CHIRP);    // audible inidicator that command has run
 
     audioPlayer.stopPlaying();                      // stop any prior audio
+    audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
     audioPlayer.startPlayingFile(COMMAND_RECEIVED_AUDIO);  // Play Start Up Sound
 
     // string to indicate that what follows is output from CLI
@@ -1714,12 +1715,16 @@
           Debug.print(DBG_WARNING, F("[W] * Audio SD Card \t NOT FOUND"));
         }
 
+        audioPlayer.reset();
+
+
+        // Set volume for left, right channels from 1 to 10. lower numbers == louder volume!
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);   // max volume
+
         // If DREQ is on an interrupt pin we can use audioPlayer.startPlayingFile()
         // to play audio in background while MCU does other tasks
         audioPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
 
-        // Set volume for left, right channels from 1 to 10. lower numbers == louder volume!
-        audioPlayer.setVolume(1,1);   // max volume
 
 
       // Stepper Setup
@@ -2128,6 +2133,9 @@
                 sysLed.blink(LED_ATTENTION);       // set attention led scene
                 //EasyBuzzer.beep(BEEP_ATTENTION);  // set attention buzzer beep
 
+                audioPlayer.stopPlaying();
+                audioPlayer.sineTest(0x44, 500);    // Make a tone to indicate VS1053 is working
+
 
               // Set up fsmState
               //----------------------------------------------------------------------------
@@ -2334,7 +2342,9 @@
 
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
+
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(STARTUP_AUDIO);  // Play Start Up Sound
 
 
@@ -2505,6 +2515,7 @@
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(OCCUPIED_NOTIFICATION_AUDIO);  // Play Alert Sound
 
         pirMotionTimestamp_ms = millis();   // Start PIR Motion timer
@@ -2611,6 +2622,7 @@
         //countdownTimestamp_ms = millis();   // Start countdown timer
 
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(COUNTDOWN_AUDIO);  // Start playing Countdown audio
 
         fanState = true;
@@ -2723,6 +2735,7 @@
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(UNOCCUPIED_NOTIFICATION_AUDIO);  // Play UNOCCUPIED notification
 
         fanState = true;
@@ -2822,6 +2835,7 @@
         stageStartTimestamp_ms = millis();  // Start recording duration in stage
 
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(DORMANT_NOTIFICATION_AUDIO);  // Play alert Sound
 
         fanState = true;
@@ -3060,6 +3074,7 @@
         //EasyBuzzer.beep(BEEP_ERROR);  // set attention buzzer beep
 
         audioPlayer.stopPlaying();                      // stop any prior audio
+        audioPlayer.setVolume(AUDIO_VOLUME, AUDIO_VOLUME);
         audioPlayer.startPlayingFile(ERROR_NOTIFICATION_AUDIO);  // Play alert Sound
 
         fanState = false;
