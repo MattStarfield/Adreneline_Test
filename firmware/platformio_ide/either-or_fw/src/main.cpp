@@ -3224,7 +3224,7 @@
         // Shutter / Stepper
         //----------------------------------------------------------------------------
         if(shutterCurrentState != shutterDesiredState)
-        // when current amd desired shutter states do not match, actuate stepper here.
+        // when current and desired shutter states do not match, actuate stepper here.
         // limit switches are checked at "Poll Inputs" to update shutterCurrentState
         {
           switch(shutterDesiredState)
