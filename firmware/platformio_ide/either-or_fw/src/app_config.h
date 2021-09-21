@@ -1,7 +1,7 @@
 /*
 //==============================================================================
-  Project:   CHOP Lab Instrumentation
-  Client:    Steven Zderic
+  Project: Either-Or
+  Client: AA Plasma / Greg Fridman
 
   Developer: Matt Starfield (matt.starfield@nextfab.com) | NextFab
   GitHub:    https://github.com/MattStarfield
@@ -53,8 +53,8 @@
       DEVELOPMENT_MODE
       TEST_MODE
     */
-    #define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
-    //#define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
+    //#define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
+    #define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
 
   // Debug Mode
   //----------------------------------------------------------------------------
@@ -221,7 +221,7 @@
     #define MOTOR_SHIELD1_ADDR                0x60  // default I2C addr
     #define STEPPER1_STEPS_PER_REV            200   // http://adafru.it/324
     #define STEPPER1_PORT                     2
-    #define STEPPER1_RPM_DEFAULT              1 //10
+    #define STEPPER1_RPM_DEFAULT              10 //10
 
     typedef enum shutterState
     {

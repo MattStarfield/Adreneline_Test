@@ -488,7 +488,7 @@
     // END -- // debugLevel Argument
 
 
-/*
+
     // deviceMode Argument
       inputArg = inputCmd.getArgument("deviceMode");   // create local Arg object
       inputStr = inputArg.getValue();                // convert Arg to input String
@@ -500,7 +500,7 @@
         // Handle input value
         //----------------------------------------------------------------------------
         if(          (inputStr == F("n"))
-                  //|| (inputStr == F("normal"))
+                  || (inputStr == F("normal"))
                   //|| (inputStr == F("1"))
                   //|| (inputStr == F("NORMAL_MODE"))
           )
@@ -525,7 +525,7 @@
             deviceMode = SETUP_MODE;
           }
         else if(     (inputStr == F("d"))
-                  //|| (inputStr == F("dev"))
+                  || (inputStr == F("dev"))
                   //|| (inputStr == F("development"))
                   //|| (inputStr == F("4"))
                   //|| (inputStr == F("DEVELOPMENT_MODE"))
@@ -561,9 +561,12 @@
           Serial.print(getProgMemString(deviceModeString[deviceMode]));
           Serial.print(F("]"));
 
+          setFsmStateNext(FSM_SYS_INIT_DEV);    // warm reboot device
+          goToFsmStateNext();
+
       }
     // END -- // deviceMode Argument
-*/
+
 
 /*
     // fsmStateNow Argument
@@ -1555,7 +1558,7 @@
       //SPI_VS1053_CS                           //  6
       //SPI_SD_CS                               //  5
 
-      pinMode(PIN_TX, INPUT_PULLUP);            //  1 // pull up to prevent known bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
+      pinMode(PIN_TX, INPUT_PULLUP);            //  1 // pull up to prevent known audio hang bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
 
     // Initialize Output Pins
     //----------------------------------------------------------------------------
@@ -1668,8 +1671,8 @@
         // SET: master cmd to set app variables
         cmdSet = cli.addCommand("s/et", cliSet_cb);   // ("cmdName, cmdNameAlias", cmdCallbackFunction); cmdName should be alpha-numeric chars ONLY
         cmdSet.setDescription("* Set variable values");
-        cmdSet.addPositionalArgument("debug/Level,dbg", "default");     // ("argName, argAlias", "defaultValue");
-        //cmdSet.addPositionalArgument("device/Mode,dev", "default");     // ("argName, argAlias", "defaultValue");
+        cmdSet.addPositionalArgument("debug/Level,dl", "default");     // ("argName, argAlias", "defaultValue");
+        cmdSet.addPositionalArgument("device/Mode,dm", "default");     // ("argName, argAlias", "defaultValue");
         //cmdSet.addPositionalArgument("fsm/State/Now", "default");     // ("argName, argAlias", "defaultValue");
         cmdSet.addPositionalArgument("uiButton,uiBtn,btn", "default");     // ("argName, argAlias", "defaultValue");
 
@@ -1830,11 +1833,15 @@
 
               uiLed.on();                         // set motion indicator LED (updtes in Output Actuators section)
 
+              //Debug.print(DBG_DEBUG, F("[D] * PIR = HIGH"));
+
             }
             else if ((millis() - pirMotionTimestamp_ms) >= PIR_RESET_TIME_MS) // prevent PIR LED from flickering while sensor settles
             {
               pirOutputPinState = false;          // turn off pir sensor flag
               uiLed.off();                        // turn off indicator LED
+
+              //Debug.print(DBG_DEBUG, F("[D] * PIR = LOW"));
             }
           }
 
@@ -2781,7 +2788,9 @@
         // END uvLedState Safety Check
 
         // Watch for motion ...
-          if(pirOutputPinState)                         // if motion is detected ...
+          if(     pirOutputPinState               // if motion is detected ...
+              //&&  (shutterCurrentState == OPEN)   // wait until shutter is open to prevent stepper motor power spikes from triggering PIR sensor
+          )
           {
             Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
@@ -3232,14 +3241,40 @@
             case CLOSED:
             //----------------------------------------------------------------------------
             {
-              stepper1->onestep(FORWARD, DOUBLE);
+              // https://learn.adafruit.com/adafruit-motor-shield-v2-for-arduino/library-reference#uint8-t-onestep-uint8-t-dir-uint8-t-style-2161523-11
+              // * onestep() is a low-level internal function (typically used by step())
+              // that does not include a built-in delay.
+              // * Here, onestep() is used to implement the step actions in a non-blocking manner.
+              // * onestep() ignores setSpeed() command
+                stepper1->onestep(FORWARD, DOUBLE);
+                //stepper1->onestep(FORWARD, SINGLE);
+
+              // * step() function is "blocking", meaning it must finish all of its steps before moving on
+              // * Using step() for 1 step includes a delay function set by setSpeed()
+                //stepper1->step(1, FORWARD, SINGLE);       // activate 1 coil at a time, less power draw & less torque
+                //stepper1->step(1, FORWARD, DOUBLE);         // activate 2 coil at a time, more power draw & more torque
+                //stepper1->step(1, FORWARD, INTERLEAVE);   // alternate between SINGLE & DOUBLE, higher resolution but slower speed
+                //stepper1->step(1, FORWARD, MICROSTEP);    // PWM coils for smooth motion between steps
             } // END -- CLOSED
             break;
 
             case OPEN:
             //----------------------------------------------------------------------------
             {
-              stepper1->onestep(BACKWARD, DOUBLE);
+              // https://learn.adafruit.com/adafruit-motor-shield-v2-for-arduino/library-reference#uint8-t-onestep-uint8-t-dir-uint8-t-style-2161523-11
+              // * onestep() is a low-level internal function (typically used by step())
+              // that does not include a built-in delay.
+              // * Here, onestep() is used to implement the step actions in a non-blocking manner.
+              // * onestep() ignores setSpeed() command
+                stepper1->onestep(BACKWARD, DOUBLE);  //onestep is an internal function called by step(), not recommended
+                //stepper1->onestep(BACKWARD, SINGLE);  //onestep is an internal function called by step(), not recommended
+
+              // * step() function is "blocking", meaning it must finish all of its steps before moving on
+              // * Using step() for 1 step includes a delay function set by setSpeed()
+                //stepper1->step(1, BACKWARD, SINGLE);      // activate 1 coil at a time, less power draw & less torque
+                //stepper1->step(1, BACKWARD, DOUBLE);        // activate 2 coil at a time, more power draw & more torque
+                //stepper1->step(1, BACKWARD, INTERLEAVE);  // alternate between SINGLE & DOUBLE, higher resolution but slower speed
+                //stepper1->step(1, BACKWARD, MICROSTEP);   // PWM coils for smooth motion between steps
             } // END -- OPEN
             break;
 
