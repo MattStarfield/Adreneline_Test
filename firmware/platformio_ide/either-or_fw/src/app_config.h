@@ -211,7 +211,7 @@
     // Fan
     #define FAN_PWM_DEFAULT                   100  // (0 - 255) default PWM duty cycle
     #define FAN_PWM_MAX                       255  // (0 - 255) Max PWM duty cycle allowed in software
-    #define FAN_PWM_MIN                       52   // (0 - 255) Min PWM duty cycle allowed in software
+    #define FAN_PWM_MIN                       60   // (0 - 255) Min PWM duty cycle allowed in software
     #define FAN_TIMEOUT_MS                    5000  // (2 sec min) amount of time allowed for fan to start spinning before error is issued
     #define FAN_CHECK_INTERVAL_MS             1000  // period to wait between checking if fan is running
 

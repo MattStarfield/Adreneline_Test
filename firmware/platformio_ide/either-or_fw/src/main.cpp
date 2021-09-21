@@ -1915,7 +1915,8 @@
         {
           fanCheckIntervalTimestamp_ms = millis();
 
-          if((fanTachCountNow - fanTachCountPrior) > 0 )  // fan is running
+          //if((fanTachCountNow - fanTachCountPrior) > 0 )  // fan is running
+          if(fanTachCountNow != fanTachCountPrior)  // fan is running, allows for count overflow without throwing fan error
           {
             fanTachCountPrior = fanTachCountNow;    // equate counters for next check
 
