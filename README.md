@@ -43,7 +43,7 @@
 UV LED room-scale air purifier
 
 <!-- Main Project Image -->
-<img src="/img/prototype.jpg" alt="prototype.jpg" width="600">
+<img src="/img/hw001.jpg" alt="hw001.jpg" width="600">
 
 ---
 
@@ -69,6 +69,7 @@ UV LED room-scale air purifier
 
 ###  User Documentation
 * <img src="/img/cli_icon.png" alt="cli_icon.png " width="15"> [**Command Line Interface Guide**](docs/command_line_interface_guide.md)
+
 <!--
 1. Initial Setup User Guide
 1. Quick Start User Guide
@@ -108,7 +109,10 @@ UV LED room-scale air purifier
 
 **Bill of Materials**: [Google Sheet](https://docs.google.com/spreadsheets/d/1uxv25DpGCV7qv-_Im_NRR5OFvUTFIbNF_wAqFNQ1yQ4/edit#gid=0) <!-- | [Simplified PDF](docs/bom-simplified.pdf)-->
 
-<!--**Photo Gallery**-->
+**Photo Gallery**<br>
+<img src="/img/hw001.jpg" alt="hw001.jpg" height="400"> <img src="/img/hw002.jpg" alt="hw002.jpg" height="400"><br><br>
+<img src="/img/hw003.jpg" alt="hw003.jpg" height="400"> <img src="/img/hw004.jpg" alt="hw004.jpg" height="400"><br><br>
+
 
 <!--
 #### Electronics
