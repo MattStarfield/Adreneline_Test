@@ -2873,7 +2873,9 @@
       {
 
         // Watch for motion ...
-          if(pirOutputPinState)                         // if motion is detected ...
+          if(     (pirOutputPinState)                             // if motion is detected ...
+              &&  ((millis() - stageStartTimestamp_ms) >= 2000)   // delay PIR monitor to allow heat cloud cuased by closing shutter to dissapate
+          )
           {
             Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
