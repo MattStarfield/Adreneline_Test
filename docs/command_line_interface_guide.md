@@ -4,8 +4,15 @@
 
 The command line interface (CLI) provides a text-based method of interacting with the device using a Serial Terminal program on a PC. Device interactions may include setting variables, reading values, changing device modes, etc.
 
+## Quick Commands
+* `s -dm d` to warm reboot in **DEVELOPMENT_MODE**
+* `s -btn 1` to **"press" User Interface Button**<br><br>
 
-## Command Line Interface (CLI)
+* `s -dm n` to warm reboot in **NORMAL_MODE**<br><br>
+
+* `s -o 10 -u 10 -d 10` to **set 10 sec timeouts for stages** (for testing)
+
+## Using the Command Line Interface (CLI)
 Start by opening a Serial Terminal program as described in [**Serial Terminal Setup**](#Serial-Terminal-Setup) below.
 
 ### Command Format
@@ -27,26 +34,12 @@ Set one or more variable values
 <br><br>
 * **Name(s)**: `set`, `s`
 * **Arguments & Values**:
-  <!--  
     * `-deviceMode`, `-device`, `-dev`
       * `n`: NORMAL_MODE
-      * `f`: FIRST_RUN_MODE
-      * `s`: SETUP_MODE
-      * `d`: DEVELOPMENT_MODE
-      * `t`: TEST_MODE
-      * `b`: BURN_IN_MODE
-    * `-fsmStateNow`, `-fsmState`, `-fsm`
-      * `di`: FSM_SYS_INIT_DEV
-      * `w` : FSM_SYS_WAIT
-      * `ai`: FSM_SYS_INIT_APP
-      * `si`: FSM_SES_INIT
-      * `s1`: FSM_STG_INIT_STAGE1
-      * `a` : FSM_SYS_INIT_ALERT
-      * `e` : FSM_SYS_INIT_ERROR
+      * `d`: DEVELOPMENT_MODE<br><br>
     * `-uiButton`, `-uiBtn`, `btn`
       * `press`, `1`: button pressed
-      * `hold`, `2`: button held
-      -->
+      * `hold`, `2`: button held<br><br>
     * `-fanState`, `-fan`
       * `0`: Off
       * `1`: On<br><br>
@@ -65,13 +58,21 @@ Set one or more variable values
       * `0` to `2147483647`: timeout value in seconds<br><br>
     * `-dormantTimeout`, `-dormant`, `-d`
       * `0` to `2147483647`: timeout value in seconds<br><br>
-    * `-debugLevel`, `-debug`, `-dbg`
+<!--    * `-debugLevel`, `-debug`, `-dbg`
         * `n`: DBG_NONE
         * `e`: DBG_ERROR
         * `w`: DBG_WARNING
         * `i`: DBG_INFO
         * `d`: DBG_DEBUG
-        * `v`: DBG_VERBOSE
+        * `v`: DBG_VERBOSE<br><br>
+ * `-fsmStateNow`, `-fsmState`, `-fsm`
+      * `di`: FSM_SYS_INIT_DEV
+      * `w` : FSM_SYS_WAIT
+      * `ai`: FSM_SYS_INIT_APP
+      * `si`: FSM_SES_INIT
+      * `s1`: FSM_STG_INIT_STAGE1
+      * `a` : FSM_SYS_INIT_ALERT
+      * `e` : FSM_SYS_INIT_ERROR<br><br> -->
 
 <!--
 #### `> pressure`
