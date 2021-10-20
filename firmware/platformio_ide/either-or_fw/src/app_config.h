@@ -124,7 +124,7 @@
 
     #define PIN_UV_LED_RELAY                  A5  // D19; Analog In  // not used
     #define PIN_UI_LED                        A4  // D18; Analog In; PWM //
-    #define PIN_UI_BUTTON                     A3  // D17; Analog In; PWM //
+    #define PIN_MIC                           A3  // D17; Analog In; PWM //
     #define PIN_LIMIT_SWITCH2                 A2  // D15; Analog In  //
     #define PIN_LIMIT_SWITCH1                 A1  // D14; Analog In  //
     #define PIN_PIR_SENSOR                    A0  // DAC; Analog In    //
@@ -137,7 +137,7 @@
     #define PIN_SPI_VS1053_CS                  6  // MusicMaker MP3-CS; PWM  //
     #define PIN_SPI_SD_CS                      5  // MusicMaker SD-CS; PWM  //
 
-    #define PIN_TX                             1  // TX1; PWM//
+    #define PIN_UI_BUTTON                      1  // TX1; PWM//
     //#define PIN_                             0  // RX0 (avoid use) //
 
     // Special Pin Defines for Feather M0 Express

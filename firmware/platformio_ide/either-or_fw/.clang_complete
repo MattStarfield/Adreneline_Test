@@ -53,7 +53,7 @@
 -IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/9.3.1/include-fixed
 -IC:/Users/mattg/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include
 -IC:/Users/mattg/.platformio/packages/tool-unity
--DPLATFORMIO=50200
+-DPLATFORMIO=50201
 -DARDUINO_SAMD_ZERO
 -DARDUINO_SAMD_FEATHER_M0
 -DARDUINO_SAMD_FEATHER_M0_EXPRESS

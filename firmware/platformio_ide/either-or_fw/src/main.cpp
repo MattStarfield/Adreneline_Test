@@ -1545,7 +1545,7 @@
 
       pinMode(PIN_UV_LED_RELAY, OUTPUT);        // A5
       pinMode(PIN_UI_LED, OUTPUT);              // A4
-      pinMode(PIN_UI_BUTTON, INPUT);            // A3
+      pinMode(PIN_MIC, INPUT);                  // A3
       pinMode(PIN_LIMIT_SWITCH2, INPUT_PULLUP); // A2
       pinMode(PIN_LIMIT_SWITCH1, INPUT_PULLUP); // A1
       pinMode(PIN_PIR_SENSOR, INPUT);           // A0
@@ -1558,7 +1558,7 @@
       //SPI_VS1053_CS                           //  6
       //SPI_SD_CS                               //  5
 
-      pinMode(PIN_TX, INPUT_PULLUP);            //  1 // pull up to prevent known audio hang bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
+      pinMode(PIN_UI_BUTTON, INPUT);            //  1 // HW Pull-up; pull up to prevent known audio hang bug https://learn.adafruit.com/adafruit-music-maker-featherwing/troubleshooting
 
     // Initialize Output Pins
     //----------------------------------------------------------------------------
