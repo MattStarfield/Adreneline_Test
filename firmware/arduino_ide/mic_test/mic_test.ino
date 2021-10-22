@@ -7,7 +7,7 @@ Adafruit Microphone Amplifier
 #define PIN_MIC             A3
 #define PIN_FAN_PWM         11
 
-#define VCC                 3.6 //volts
+#define VCC                 3.3 //volts
 #define SERIAL_BAUD_RATE    115200
 #define GAIN_FACTOR         115     // measure here: https://forums.adafruit.com/viewtopic.php?f=8&t=179776&p=875029&hilit=Electret+Microphone+Amplifier#p875175
 
@@ -23,7 +23,6 @@ void setup()
    pinMode(PIN_MIC, INPUT);
    pinMode(PIN_FAN_PWM, OUTPUT);
 
-   
    digitalWrite(PIN_FAN_PWM, LOW);
 }
 

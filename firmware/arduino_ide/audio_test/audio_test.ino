@@ -5,6 +5,8 @@
 #include <SD.h>
 #include <Adafruit_VS1053.h>
 
+#define PIN_FAN_PWM         11
+
 // These are the pins used
 #define VS1053_RESET   -1     // VS1053 reset pin (not used!)
 
@@ -60,6 +62,10 @@ Adafruit_VS1053_FilePlayer musicPlayer =
 
 void setup() {
   Serial.begin(115200);
+
+   pinMode(PIN_FAN_PWM, OUTPUT);
+
+   digitalWrite(PIN_FAN_PWM, LOW);
 
   // if you're using Bluefruit or LoRa/RFM Feather, disable the radio module
   //pinMode(8, INPUT_PULLUP);
