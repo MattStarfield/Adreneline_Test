@@ -214,6 +214,10 @@
 
     uint32_t countdownTimestamp_ms = 0;
 
+    bool micEventDetectedFlag = 0;
+    uint16_t micThreshold_db = 0;
+    uint8_t micEventFanPwm = 0;
+
 
   // Actuator Output vars
   //----------------------------------------------------------------------------
@@ -867,6 +871,37 @@
           Serial.println(F(" sec] "));
       }
     // END -- // dormantTimeout Argument
+
+
+
+    // micThreshold Argument
+      inputArg = inputCmd.getArgument("micThreshold");   // create local Arg object
+      inputStr = inputArg.getValue();                // convert Arg to input String
+
+      //if(inputStr != "default")
+      if(inputStr != defaultStr)
+      {
+        // Handle input value
+        int tempValue = inputStr.toInt();           // convert to expected data type
+
+        if(    (tempValue >= 35)
+            && (tempValue <= 150)
+          )
+          {
+            micThreshold_db = tempValue;
+          }
+        else
+          {
+            //Serial.print(tempValue);
+            //Serial.println(F("INVALID"));
+            Serial.println(invalidStr);
+          }
+
+          Serial.print(F("[micThreshold: "));
+          Serial.print(micThreshold_db);
+          Serial.println(F(" dB] "));
+      }
+    // END -- // micThreshold Argument
 
 
   } // END -- cliSet_cb()
@@ -1686,6 +1721,8 @@
         cmdSet.addPositionalArgument("o/ccupied/Timeout", "default");
         cmdSet.addPositionalArgument("u/noccupied/Timeout", "default");
         cmdSet.addPositionalArgument("d/ormant/Timeout", "default");
+
+        cmdSet.addPositionalArgument("m/ic/Threshold", "default");
 
 
         // PRESSURE: output pressure sensor reading

@@ -52,6 +52,8 @@ Set one or more variable values
       * `c` or `1`: CLOSED
       * `o` or `2`: OPEN
       * `r` or `3`: RELEASED<br><br>
+    * `-micThreshold`, `-mic`, `-m`
+      * `35` to `150`: dB theshold for noise event<br><br>
     * `-occupiedTimeout`, `-occupied`, `-o`
       * `0` to `2147483647`: timeout value in seconds<br><br>
     * `-unoccupiedTimeout`, `-unoccupied`, `-u`

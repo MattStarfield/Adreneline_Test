@@ -20,7 +20,7 @@
 // == App Info == //
 //==============================================================================
 
-  #define FIRMWARE_VERSION                  "v1.0.0"
+  #define FIRMWARE_VERSION                  "v1.1.0"
   #define FIRMWARE_NAME                     "Either-Or"
 
 //==============================================================================
@@ -53,8 +53,8 @@
       DEVELOPMENT_MODE
       TEST_MODE
     */
-    //#define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
-    #define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
+    #define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
+    //#define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
 
   // Debug Mode
   //----------------------------------------------------------------------------
@@ -205,6 +205,8 @@
     #define PIR_STABILIZATION_TIME_MS         30000   // ms, time required for PIR sensor to stabilize after power up
     #define PIR_RESET_TIME_MS                 500    // ms, time required for PIR to be ready after motion is no longer detected
 
+    #define MIC_THRESHOLD_DEFAULT_DB          50    // dB, sound level threshold to trigger increased airflow (quiet room ≈ 35dB)
+    #define MIC_EVENT_FAN_PWM                 100   // PWM fan speed when noise event is above dB threshold
 
   // Actuator Settings
   //----------------------------------------------------------------------------
