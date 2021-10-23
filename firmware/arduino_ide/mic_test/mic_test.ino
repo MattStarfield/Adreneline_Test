@@ -24,6 +24,7 @@ void setup()
    pinMode(PIN_FAN_PWM, OUTPUT);
 
    digitalWrite(PIN_FAN_PWM, LOW);
+   //digitalWrite(PIN_FAN_PWM, HIGH);   //Fan sound level test = 48dB max
 }
 
 

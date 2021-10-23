@@ -215,8 +215,9 @@
     uint32_t countdownTimestamp_ms = 0;
 
     bool micEventDetectedFlag = 0;
-    uint16_t micThreshold_db = 0;
-    uint8_t micEventFanPwm = 0;
+    uint32_t micEventFanTimer_ms = 0;
+    double micThreshold_db = 0.0;
+    //uint8_t micEventFanPwm = 0;
 
 
   // Actuator Output vars
@@ -1709,10 +1710,10 @@
         cmdSet.addPositionalArgument("debug/Level,dl", "default");     // ("argName, argAlias", "defaultValue");
         cmdSet.addPositionalArgument("device/Mode,dm", "default");     // ("argName, argAlias", "defaultValue");
         //cmdSet.addPositionalArgument("fsm/State/Now", "default");     // ("argName, argAlias", "defaultValue");
-        cmdSet.addPositionalArgument("uiButton,uiBtn,btn", "default");     // ("argName, argAlias", "defaultValue");
+        cmdSet.addPositionalArgument("uiButton,uiBtn,b/tn", "default");     // ("argName, argAlias", "defaultValue");
 
         cmdSet.addPositionalArgument("fan/State", "default");               // ("argName, argAlias", "defaultValue");
-        cmdSet.addPositionalArgument("fanSpeedPwm,fanPwm,pwm", "default");     // ("argName, argAlias", "defaultValue");
+        cmdSet.addPositionalArgument("fanSpeedPwm,fanPwm,p/wm", "default");     // ("argName, argAlias", "defaultValue");
 
         cmdSet.addPositionalArgument("uv/Led/State", "default");
 
@@ -1859,18 +1860,21 @@
 
         // Update PIR Motion Sensor Reading
         //----------------------------------------------------------------------------
-          //pirOutputPinState = digitalRead(PIN_PIR_SENSOR);
 
           if(pirIsStabilized)                     // make sure PIR Stabilization is complete
           {
             if(digitalRead(PIN_PIR_SENSOR))       // if PIR sensor pin is HIGH
             {
+              // print message once per motion event
+              if(!pirOutputPinState)
+              {
+                Debug.print(DBG_DEBUG, F("[D] * PIR Motion Detected %s"), getFormattedMillisString(millis()));
+              }
+
               pirOutputPinState = true;           // set pir flag
               pirMotionTimestamp_ms = millis();   // update timestamp (used to eliminate hysterisis)
 
               uiLed.on();                         // set motion indicator LED (updtes in Output Actuators section)
-
-              //Debug.print(DBG_DEBUG, F("[D] * PIR = HIGH"));
 
             }
             else if ((millis() - pirMotionTimestamp_ms) >= PIR_RESET_TIME_MS) // prevent PIR LED from flickering while sensor settles
@@ -2054,6 +2058,8 @@
           // Sensor Input vars
           //----------------------------------------------------------------------------
             // potValSamples initialized in setup() bc pot state is evalated at top of loop()
+            micThreshold_db = MIC_THRESHOLD_DEFAULT_DB;
+            //micEventFanPwm = MIC_EVENT_FAN_PWM;
 
 
           // Actuator Output vars
@@ -2311,6 +2317,8 @@
               //Serial.print(F("* Waiting for user "));                    // print wait message
 
             Debug.print(DBG_INFO,    F("[I] Waiting for user "));
+
+            audioPlayer.stopPlaying();  // ensure sine test has stopped sounding
 
           }
           // Check to refresh ticks
@@ -2619,11 +2627,62 @@
           }
         // END uvLedState Safety Check
 
-        // Monitor PIR Motion Timer
-          //if(pirOutputPinState)                 // when motion is detected ...
-          //{
-          //  pirMotionTimestamp_ms = millis();   // reset PIR timer
-          //}
+        // Mic Sound Level Test - ONLY needs to run in FSM_STG_RUN_OCCUPIED
+          if(    audioPlayer.stopped()          // Ensure Audio is not playing before sound level reading
+              //&& (fanSpeedPwm <= FAN_PWM_MIN)   // Ensure Fan is not running above lowest (quietest) setting; Max Fan noise = 48dB, so won't trigger mic threshold = 50dB
+              // Servo only steps between loops, so will not be running during this check
+          )
+          {
+            uint16_t micSample = 0;             // var to hold mic reading
+
+            uint16_t micSamplePeakToPeak = 0;  // peak-to-peak voltage amplitude of sound recording
+            uint16_t micSampleMax = 0;         // initial value to estalish recording MAX at floor
+            uint16_t micSampleMin = 1024;      // initial value to estalish recording MIN at ceiling
+
+            uint32_t listeningStartTimestamp_ms = millis();
+
+            double micVoltagePeakToPeak = 0.0;
+            double micPeak_dB = 0.0;
+
+            // BLOCKING section - keep as short as possible!
+            while( (millis() - listeningStartTimestamp_ms) < MIC_SAMPLE_DURATION_MS)
+            {
+              micSample = analogRead(PIN_MIC);  // sample mic voltage
+
+              if (micSample < 1024)  // toss out spurious readings
+              {
+                 if (micSample > micSampleMax)
+                 {
+                    micSampleMax = micSample;  // save just the max levels
+                 }
+                 else if (micSample < micSampleMin)
+                 {
+                    micSampleMin = micSample;  // save just the min levels
+                 }
+              }
+            } // END BLOCKING while()
+
+            // Calculate dB level from mic readings
+            micSamplePeakToPeak = micSampleMax - micSampleMin;            // calculate V peak-to-peak amplitude of listening window
+
+            micVoltagePeakToPeak = (micSamplePeakToPeak * (double)MIC_VCC) / 1024.0;   // convert raw value to volts
+
+            micPeak_dB = 20.0*log(10)*(micVoltagePeakToPeak/(double)MIC_VCC);                        // convert volts to dB
+            micPeak_dB = micPeak_dB + MIC_CALIBRATION_DB;                 // add calibration value adjustment
+
+            if(micPeak_dB > micThreshold_db)        // if noise detected above threshold value
+            {
+
+              Debug.print(DBG_DEBUG, F("[D] * %.2f dB Mic Event Detected %s"), micPeak_dB, getFormattedMillisString(millis()) );
+
+              //micEventDetectedFlag = true;        // handle event flag in "Update Actuator Outputs"
+              micEventFanTimer_ms = millis() + (MIC_EVENT_FAN_DURATION_SEC * 1000);  // set timer for increase fan speed due to mic event
+              Debug.print(DBG_DEBUG, F("[D] * micEventFanTimer_ms = %s"), getFormattedMillisString(micEventFanTimer_ms) );
+
+            }
+
+          } // END Mic Sound Level Test
+
 
         // Decide if we can leave this state due to No Motion Timeout ...
         // pirMotionTimestamp_ms updated in Handle Polled Inputs section
@@ -2728,7 +2787,7 @@
         // Watch for motion ...
           if(pirOutputPinState)                         // if motion is detected ...
           {
-            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
+            //Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
             audioPlayer.stopPlaying();                  // stop countdown audio
 
@@ -2793,6 +2852,10 @@
         // uvLedState NOT monitored in RUN bc can be left ON when UNOCCUPIED
         Debug.print(DBG_DEBUG, F("[D] * UV LED:\t ON") );
 
+        micEventFanTimer_ms = 0;  // Release fan control from Mic Event
+
+        pirOutputPinState = false; // clear pre-existing motion detection
+
 
         // Set up transition to next fsmState
         //----------------------------------------------------------------------------
@@ -2826,19 +2889,23 @@
         // END uvLedState Safety Check
 
         // Watch for motion ...
-          if(     pirOutputPinState               // if motion is detected ...
-              //&&  (shutterCurrentState == OPEN)   // wait until shutter is open to prevent stepper motor power spikes from triggering PIR sensor
+          if(    (shutterCurrentState == OPEN)                  // wait until shutter is open to prevent shutter from triggering PIR Motion Sensor
+              && ( (millis() - stageStartTimestamp_ms) > (stageStartTimestamp_ms + PIR_RESET_TIME_MS + 1000) )  // wait for
           )
           {
-            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
+            if(pirOutputPinState)               // if motion is detected ...
+            {
+              //Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
-            audioPlayer.stopPlaying();                  // stop audio
+              audioPlayer.stopPlaying();                  // stop audio
 
-            // Set up transition to next fsmState
-            //----------------------------------------------------------------------------
-              setFsmStateNext(FSM_STG_INIT_OCCUPIED);   // return to OCCUPIED state
-              goToFsmStateNext();
-          }
+              // Set up transition to next fsmState
+              //----------------------------------------------------------------------------
+                setFsmStateNext(FSM_STG_INIT_OCCUPIED);   // return to OCCUPIED state
+                goToFsmStateNext();
+            }
+
+          } // END if shutterCurrentState == OPEN
 
         // Decide if we can go to next state ...
           if(  ((millis() - stageStartTimestamp_ms) >= (unoccupiedTimeout_sec * 1000))   // max duration has elapsed
@@ -3246,13 +3313,18 @@
         //----------------------------------------------------------------------------
         if(fanState)
         {
-          // fanSpeedPwm duty cycle must be INVERTED (255-fanSpeedPwm)
-          // bc the signal controls MOSFET GND state instead of direct PWM drive
-          analogWrite(PIN_FAN_PWM, (fanSpeedPwm));       // Turn fan ON to PWM setting
+          if(millis() < micEventFanTimer_ms)           // timer not expired for increased fan speed due to mic event
+          {
+            analogWrite(PIN_FAN_PWM, MIC_EVENT_FAN_PWM);  // increased fan speed PWM
+          }
+          else                                          // retun fan to normal speed after mic event duration
+          {
+            analogWrite(PIN_FAN_PWM, fanSpeedPwm);       // Turn fan ON to normal PWM setting
+          }
         }
         else
         {
-          analogWrite(PIN_FAN_PWM, (0));                 // Turn fan OFF
+          analogWrite(PIN_FAN_PWM, 0);                 // Turn fan OFF
         }
 
         // UV LED Module

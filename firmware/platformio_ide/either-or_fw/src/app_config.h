@@ -84,16 +84,6 @@
   //----------------------------------------------------------------------------
     #define WATCHDOG_TIMER_MS                 2000 // (ms), watchdog will reboot system if it hangs for this long
 
-    #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
-
-    #define LOOP_TIME_NUM_SAMPLES             10
-
-    #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
-    #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
-
-    #define CLI_INPUT_DESIGNATOR              "\n\r<< "
-    #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
-
   // LED & Pixel PWM Brightness values
   //----------------------------------------------------------------------------
     #define BRI_MAX                           255    // (0 - 255) Max allowable brightness
@@ -105,6 +95,18 @@
   //----------------------------------------------------------------------------
     #define AL_DISABLE                        true
     #define AL_ENABLE                         false
+
+  // Other Settings
+  //----------------------------------------------------------------------------
+    #define ENUM_STRING_BUFFER_SIZE           64    // length of longest enum string; used for PROGMEM print
+
+    #define LOOP_TIME_NUM_SAMPLES             10
+
+    #define WAIT_MESSAGE_REFRESH_INTERVAL_MS  5000
+    #define WAIT_MESSAGE_PRINT_PERIODICALLY   true // determines if FSM_SYS_WAIT message prints once or refreshes periodically
+
+    #define CLI_INPUT_DESIGNATOR              "\n\r<< "
+    #define CLI_OUTPUT_DESIGNATOR             "\n\r>> "
 
 
 //==============================================================================
@@ -207,6 +209,12 @@
 
     #define MIC_THRESHOLD_DEFAULT_DB          50    // dB, sound level threshold to trigger increased airflow (quiet room ≈ 35dB)
     #define MIC_EVENT_FAN_PWM                 100   // PWM fan speed when noise event is above dB threshold
+    #define MIC_EVENT_FAN_DURATION_SEC        30    // sec, duration to run fan at increased speed after a mic event
+    #define MIC_GAIN_FACTOR                   115   // measure here: https://forums.adafruit.com/viewtopic.php?f=8&t=179776&p=875029&hilit=Electret+Microphone+Amplifier#p875175
+
+    #define MIC_SAMPLE_DURATION_MS            10    // ms, (BLOCKING) duration of audio detection window each loop()
+    #define MIC_CALIBRATION_DB                32    // dB meter reading with mic @ ~0V
+    #define MIC_VCC                           3.3   // V, used in Mic dB calculation
 
   // Actuator Settings
   //----------------------------------------------------------------------------
