@@ -2890,7 +2890,6 @@
 
         // Watch for motion ...
           if(    (shutterCurrentState == OPEN)                  // wait until shutter is open to prevent shutter from triggering PIR Motion Sensor
-              && ( (millis() - stageStartTimestamp_ms) > (stageStartTimestamp_ms + PIR_RESET_TIME_MS + 1000) )  // wait for
           )
           {
             if(pirOutputPinState)               // if motion is detected ...
@@ -2978,10 +2977,10 @@
 
         // Watch for motion ...
           if(     (pirOutputPinState)                             // if motion is detected ...
-              &&  ((millis() - stageStartTimestamp_ms) >= 2000)   // delay PIR monitor to allow heat cloud cuased by closing shutter to dissapate
+              //&&  ((millis() - stageStartTimestamp_ms) >= 2000)   // NOT NEEDED - delay PIR monitor to allow heat cloud cuased by closing shutter to dissapate
           )
           {
-            Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
+            //Debug.print(DBG_DEBUG, F("[D] * PIR motion detected") );
 
             audioPlayer.stopPlaying();                  // stop countdown audio
 

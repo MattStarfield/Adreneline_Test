@@ -53,8 +53,8 @@
       DEVELOPMENT_MODE
       TEST_MODE
     */
-    #define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
-    //#define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
+    //#define DEVICE_MODE_DEFAULT               DEVELOPMENT_MODE    // options listed in device_mode_config.h
+    #define DEVICE_MODE_DEFAULT               NORMAL_MODE    // options listed in device_mode_config.h
 
   // Debug Mode
   //----------------------------------------------------------------------------
