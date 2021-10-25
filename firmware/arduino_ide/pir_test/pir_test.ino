@@ -4,8 +4,10 @@ int fanPwm = 11;
 int state = LOW;             // by default, no motion detected
 int val = 0;                 // variable to store the sensor status (value)
 
-int pirStabilizationTime_sec = 45;
+int pirStabilizationTime_sec = 30;
 bool pirIsStable = false;
+
+uint32_t motionTimer = 0;
 
 void setup() {
   pinMode(led, OUTPUT);      // initalize LED as an output
@@ -15,6 +17,8 @@ void setup() {
 
   digitalWrite(fanPwm, LOW);   // turn Fan Off
 
+  while(!Serial);             // wait here for serial connection
+  
   Serial.println("Wait for PIR to stabilize...");
 }
 
@@ -31,23 +35,36 @@ void loop()
   if(pirIsStable)
   {
     val = digitalRead(sensor);   // read sensor value
-    if (val == HIGH) {           // check if the sensor is HIGH
+    
+    if (val == HIGH)             // check if the sensor is HIGH
+    {           
       digitalWrite(led, HIGH);   // turn LED ON
-      delay(500);                // delay 100 milliseconds 
+      delay(500);                
       
-      if (state == LOW) {
+      if (state == LOW) 
+      {
         Serial.println("Motion detected!"); 
         state = HIGH;       // update variable state to HIGH
+
+        motionTimer = millis();
       }
     } 
-    else {
+    else 
+    {
         digitalWrite(led, LOW); // turn LED OFF
-        delay(500);             // delay 200 milliseconds 
+        delay(500);            
         
-        if (state == HIGH){
-          Serial.println("Motion stopped!");
+        if (state == HIGH)
+        {
+          Serial.print("Motion stopped! ");
+          Serial.print(millis() - motionTimer);
+          Serial.println(" ms");
+
+          motionTimer =0;
+          
           state = LOW;       // update variable state to LOW
-      }
+          
+        }
     }
   } // end pirIsStable
   
